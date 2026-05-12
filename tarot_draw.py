@@ -1,3 +1,14 @@
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 用 DeepSeek（兼容 OpenAI SDK）
+client = OpenAI(
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com"
+)
 import random
 
 # 22张大阿卡纳牌（先用这些，后面再加56张小阿卡纳）
@@ -116,3 +127,33 @@ for position, card in zip(positions, cards):
     print(f"   {position}: {card} ({orientation_zh})")
     print(f"      含义：{meaning}")
     print()
+    # === AI 解读 ===
+print("=" * 40)
+print("🤖 AI 塔罗师正在解读中...")
+print()
+
+cards_text = ""
+for position, card in zip(positions, cards):
+    cards_text += f"{position}: {card}\n"
+
+prompt = f"""你是一位温柔且富有洞察力的塔罗师。
+
+用户的问题：{question}
+
+抽到的三张牌（过去/现在/未来牌阵）：
+{cards_text}
+
+请根据这三张牌和用户的问题，给出一段温暖、有启发性的解读。
+解读分三段：过去带来的影响、现在的状态、未来的趋势与建议。
+语气温柔，避免过于绝对的预测，用中文回答，控制在 300 字以内。"""
+
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "system", "content": "你是一位经验丰富的塔罗解读师，温柔而富有智慧。"},
+        {"role": "user", "content": prompt}
+    ]
+)
+
+print(response.choices[0].message.content)
+print()
