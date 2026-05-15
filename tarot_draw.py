@@ -1,4 +1,5 @@
 import os
+import json   
 import random
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -11,96 +12,25 @@ client = OpenAI(
 )
 
 # === 数据 ===
-MAJOR_ARCANA = {
-    "The Fool 愚人": {
-        "upright": "新的开始、纯真、自由、冒险",
-        "reversed": "鲁莽、轻率、被欺骗"
-    },
-    "The Magician 魔术师": {
-        "upright": "意志力、创造、行动、技能",
-        "reversed": "操纵、缺乏自信、未发挥潜能"
-    },
-    "The High Priestess 女祭司": {
-        "upright": "直觉、潜意识、神秘、内在智慧",
-        "reversed": "压抑、忽视直觉、表面化"
-    },
-    "The Empress 女皇": {
-        "upright": "丰盛、母性、创造力、自然",
-        "reversed": "依赖、创意阻塞、忽视自我"
-    },
-    "The Emperor 皇帝": {
-        "upright": "权威、稳定、领导力、纪律",
-        "reversed": "专制、缺乏灵活、控制欲强"
-    },
-    "The Hierophant 教皇": {
-        "upright": "传统、信仰、教育、遵循规则",
-        "reversed": "挑战传统、个人信念、叛逆"
-    },
-    "The Lovers 恋人": {
-        "upright": "爱、和谐、选择、价值观一致",
-        "reversed": "失衡、价值观冲突、错误选择"
-    },
-    "The Chariot 战车": {
-        "upright": "意志力、胜利、控制、决心",
-        "reversed": "失控、方向不明、攻击性"
-    },
-    "Strength 力量": {
-        "upright": "内在力量、勇气、耐心、同情",
-        "reversed": "自我怀疑、软弱、缺乏自信"
-    },
-    "The Hermit 隐者": {
-        "upright": "内省、独处、寻找真相、智慧",
-        "reversed": "孤立、逃避、拒绝帮助"
-    },
-    "Wheel of Fortune 命运之轮": {
-        "upright": "命运、转机、循环、好运",
-        "reversed": "厄运、阻力、打破循环"
-    },
-    "Justice 正义": {
-        "upright": "公正、真相、因果、诚实",
-        "reversed": "不公平、逃避责任、不诚实"
-    },
-    "The Hanged Man 倒吊人": {
-        "upright": "暂停、放手、新视角、等待",
-        "reversed": "拖延、抵抗、无谓牺牲"
-    },
-    "Death 死神": {
-        "upright": "转变、结束与开始、蜕变",
-        "reversed": "抗拒改变、停滞、无法前进"
-    },
-    "Temperance 节制": {
-        "upright": "平衡、耐心、适度、融合",
-        "reversed": "失衡、过度、缺乏长远眼光"
-    },
-    "The Devil 恶魔": {
-        "upright": "束缚、物质主义、上瘾、阴暗面",
-        "reversed": "解放、挣脱束缚、重获自由"
-    },
-    "The Tower 塔": {
-        "upright": "突变、混乱、启示、打破幻象",
-        "reversed": "避免灾难、延迟崩溃、恐惧改变"
-    },
-    "The Star 星星": {
-        "upright": "希望、信念、更新、平静",
-        "reversed": "绝望、失去信念、缺乏灵感"
-    },
-    "The Moon 月亮": {
-        "upright": "幻觉、恐惧、潜意识、不确定",
-        "reversed": "释放恐惧、真相揭露、清晰"
-    },
-    "The Sun 太阳": {
-        "upright": "成功、喜悦、活力、积极",
-        "reversed": "暂时受阻、过度乐观、延迟成功"
-    },
-    "Judgement 审判": {
-        "upright": "觉醒、重生、内在呼唤、宽恕",
-        "reversed": "自我怀疑、拒绝成长、内疚"
-    },
-    "The World 世界": {
-        "upright": "完成、整合、成就、旅程终点",
-        "reversed": "未完成、缺乏收尾、拖延"
-    }
-}
+# === 从 JSON 加载塔罗数据 ===
+def load_tarot_data():
+    """从 JSON 文件加载塔罗牌数据"""
+    with open("knowledge_base/structured/major_arcana.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # 转回字典格式（key 是牌名，方便代码查询）
+    arcana_dict = {}
+    for card in data["cards"]:
+        arcana_dict[card["key"]] = {
+            "upright": card["upright"],
+            "reversed": card["reversed"],
+            "number": card["number"],
+            "name_zh": card["name_zh"]
+        }
+    return arcana_dict
+
+# 程序启动时加载一次
+MAJOR_ARCANA = load_tarot_data()
 
 
 # === 函数 ===

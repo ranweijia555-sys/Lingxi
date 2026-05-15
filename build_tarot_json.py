@@ -1,0 +1,202 @@
+import json
+
+# 22 张大阿卡纳牌的结构化数据
+MAJOR_ARCANA = {
+    "The Fool 愚人": {
+        "name_en": "The Fool", "name_zh": "愚人", "number": 0, "suit": "major",
+        "upright": "新的开始、纯真、自由、冒险",
+        "reversed": "鲁莽、轻率、被欺骗",
+        "keywords_upright": ["新开始", "纯真", "冒险", "自由"],
+        "keywords_reversed": ["鲁莽", "轻率", "被欺骗"],
+        "element": "风", "planet": "天王星"
+    },
+    "The Magician 魔术师": {
+        "name_en": "The Magician", "name_zh": "魔术师", "number": 1, "suit": "major",
+        "upright": "意志力、创造、行动、技能",
+        "reversed": "操纵、缺乏自信、未发挥潜能",
+        "keywords_upright": ["意志力", "创造", "行动", "技能"],
+        "keywords_reversed": ["操纵", "缺乏自信"],
+        "element": "风", "planet": "水星"
+    },
+    "The High Priestess 女祭司": {
+        "name_en": "The High Priestess", "name_zh": "女祭司", "number": 2, "suit": "major",
+        "upright": "直觉、潜意识、神秘、内在智慧",
+        "reversed": "压抑、忽视直觉、表面化",
+        "keywords_upright": ["直觉", "潜意识", "神秘", "智慧"],
+        "keywords_reversed": ["压抑", "忽视直觉"],
+        "element": "水", "planet": "月亮"
+    },
+    "The Empress 女皇": {
+        "name_en": "The Empress", "name_zh": "女皇", "number": 3, "suit": "major",
+        "upright": "丰盛、母性、创造力、自然",
+        "reversed": "依赖、创意阻塞、忽视自我",
+        "keywords_upright": ["丰盛", "母性", "创造力"],
+        "keywords_reversed": ["依赖", "创意阻塞"],
+        "element": "土", "planet": "金星"
+    },
+    "The Emperor 皇帝": {
+        "name_en": "The Emperor", "name_zh": "皇帝", "number": 4, "suit": "major",
+        "upright": "权威、稳定、领导力、纪律",
+        "reversed": "专制、缺乏灵活、控制欲强",
+        "keywords_upright": ["权威", "稳定", "领导力"],
+        "keywords_reversed": ["专制", "控制欲"],
+        "element": "火", "planet": "火星"
+    },
+    "The Hierophant 教皇": {
+        "name_en": "The Hierophant", "name_zh": "教皇", "number": 5, "suit": "major",
+        "upright": "传统、信仰、教育、遵循规则",
+        "reversed": "挑战传统、个人信念、叛逆",
+        "keywords_upright": ["传统", "信仰", "教育"],
+        "keywords_reversed": ["叛逆", "挑战传统"],
+        "element": "土", "planet": "金牛座"
+    },
+    "The Lovers 恋人": {
+        "name_en": "The Lovers", "name_zh": "恋人", "number": 6, "suit": "major",
+        "upright": "爱、和谐、选择、价值观一致",
+        "reversed": "失衡、价值观冲突、错误选择",
+        "keywords_upright": ["爱", "和谐", "选择"],
+        "keywords_reversed": ["失衡", "错误选择"],
+        "element": "风", "planet": "双子座"
+    },
+    "The Chariot 战车": {
+        "name_en": "The Chariot", "name_zh": "战车", "number": 7, "suit": "major",
+        "upright": "意志力、胜利、控制、决心",
+        "reversed": "失控、方向不明、攻击性",
+        "keywords_upright": ["意志力", "胜利", "控制"],
+        "keywords_reversed": ["失控", "方向不明"],
+        "element": "水", "planet": "巨蟹座"
+    },
+    "Strength 力量": {
+        "name_en": "Strength", "name_zh": "力量", "number": 8, "suit": "major",
+        "upright": "内在力量、勇气、耐心、同情",
+        "reversed": "自我怀疑、软弱、缺乏自信",
+        "keywords_upright": ["内在力量", "勇气", "耐心"],
+        "keywords_reversed": ["自我怀疑", "软弱"],
+        "element": "火", "planet": "狮子座"
+    },
+    "The Hermit 隐者": {
+        "name_en": "The Hermit", "name_zh": "隐者", "number": 9, "suit": "major",
+        "upright": "内省、独处、寻找真相、智慧",
+        "reversed": "孤立、逃避、拒绝帮助",
+        "keywords_upright": ["内省", "独处", "智慧"],
+        "keywords_reversed": ["孤立", "逃避"],
+        "element": "土", "planet": "处女座"
+    },
+    "Wheel of Fortune 命运之轮": {
+        "name_en": "Wheel of Fortune", "name_zh": "命运之轮", "number": 10, "suit": "major",
+        "upright": "命运、转机、循环、好运",
+        "reversed": "厄运、阻力、打破循环",
+        "keywords_upright": ["命运", "转机", "好运"],
+        "keywords_reversed": ["厄运", "阻力"],
+        "element": "火", "planet": "木星"
+    },
+    "Justice 正义": {
+        "name_en": "Justice", "name_zh": "正义", "number": 11, "suit": "major",
+        "upright": "公正、真相、因果、诚实",
+        "reversed": "不公平、逃避责任、不诚实",
+        "keywords_upright": ["公正", "真相", "因果"],
+        "keywords_reversed": ["不公平", "逃避责任"],
+        "element": "风", "planet": "天秤座"
+    },
+    "The Hanged Man 倒吊人": {
+        "name_en": "The Hanged Man", "name_zh": "倒吊人", "number": 12, "suit": "major",
+        "upright": "暂停、放手、新视角、等待",
+        "reversed": "拖延、抵抗、无谓牺牲",
+        "keywords_upright": ["暂停", "放手", "新视角"],
+        "keywords_reversed": ["拖延", "抵抗"],
+        "element": "水", "planet": "海王星"
+    },
+    "Death 死神": {
+        "name_en": "Death", "name_zh": "死神", "number": 13, "suit": "major",
+        "upright": "转变、结束与开始、蜕变",
+        "reversed": "抗拒改变、停滞、无法前进",
+        "keywords_upright": ["转变", "蜕变", "结束"],
+        "keywords_reversed": ["抗拒改变", "停滞"],
+        "element": "水", "planet": "天蝎座"
+    },
+    "Temperance 节制": {
+        "name_en": "Temperance", "name_zh": "节制", "number": 14, "suit": "major",
+        "upright": "平衡、耐心、适度、融合",
+        "reversed": "失衡、过度、缺乏长远眼光",
+        "keywords_upright": ["平衡", "耐心", "适度"],
+        "keywords_reversed": ["失衡", "过度"],
+        "element": "火", "planet": "射手座"
+    },
+    "The Devil 恶魔": {
+        "name_en": "The Devil", "name_zh": "恶魔", "number": 15, "suit": "major",
+        "upright": "束缚、物质主义、上瘾、阴暗面",
+        "reversed": "解放、挣脱束缚、重获自由",
+        "keywords_upright": ["束缚", "上瘾", "阴暗面"],
+        "keywords_reversed": ["解放", "重获自由"],
+        "element": "土", "planet": "摩羯座"
+    },
+    "The Tower 塔": {
+        "name_en": "The Tower", "name_zh": "塔", "number": 16, "suit": "major",
+        "upright": "突变、混乱、启示、打破幻象",
+        "reversed": "避免灾难、延迟崩溃、恐惧改变",
+        "keywords_upright": ["突变", "混乱", "启示"],
+        "keywords_reversed": ["避免灾难", "恐惧改变"],
+        "element": "火", "planet": "火星"
+    },
+    "The Star 星星": {
+        "name_en": "The Star", "name_zh": "星星", "number": 17, "suit": "major",
+        "upright": "希望、信念、更新、平静",
+        "reversed": "绝望、失去信念、缺乏灵感",
+        "keywords_upright": ["希望", "信念", "更新"],
+        "keywords_reversed": ["绝望", "失去信念"],
+        "element": "风", "planet": "水瓶座"
+    },
+    "The Moon 月亮": {
+        "name_en": "The Moon", "name_zh": "月亮", "number": 18, "suit": "major",
+        "upright": "幻觉、恐惧、潜意识、不确定",
+        "reversed": "释放恐惧、真相揭露、清晰",
+        "keywords_upright": ["幻觉", "恐惧", "潜意识"],
+        "keywords_reversed": ["释放恐惧", "清晰"],
+        "element": "水", "planet": "双鱼座"
+    },
+    "The Sun 太阳": {
+        "name_en": "The Sun", "name_zh": "太阳", "number": 19, "suit": "major",
+        "upright": "成功、喜悦、活力、积极",
+        "reversed": "暂时受阻、过度乐观、延迟成功",
+        "keywords_upright": ["成功", "喜悦", "活力"],
+        "keywords_reversed": ["暂时受阻", "过度乐观"],
+        "element": "火", "planet": "太阳"
+    },
+    "Judgement 审判": {
+        "name_en": "Judgement", "name_zh": "审判", "number": 20, "suit": "major",
+        "upright": "觉醒、重生、内在呼唤、宽恕",
+        "reversed": "自我怀疑、拒绝成长、内疚",
+        "keywords_upright": ["觉醒", "重生", "宽恕"],
+        "keywords_reversed": ["自我怀疑", "内疚"],
+        "element": "火", "planet": "冥王星"
+    },
+    "The World 世界": {
+        "name_en": "The World", "name_zh": "世界", "number": 21, "suit": "major",
+        "upright": "完成、整合、成就、旅程终点",
+        "reversed": "未完成、缺乏收尾、拖延",
+        "keywords_upright": ["完成", "整合", "成就"],
+        "keywords_reversed": ["未完成", "拖延"],
+        "element": "土", "planet": "土星"
+    }
+}
+
+# 转换成列表格式（更适合后面 RAG 检索）
+cards_list = []
+for card_key, card_data in MAJOR_ARCANA.items():
+    card_data["key"] = card_key
+    cards_list.append(card_data)
+
+# 包装成最终输出格式
+output = {
+    "version": "1.0",
+    "type": "major_arcana",
+    "count": len(cards_list),
+    "cards": cards_list
+}
+
+# 写入 JSON 文件
+with open("knowledge_base/structured/major_arcana.json", "w", encoding="utf-8") as f:
+    json.dump(output, f, ensure_ascii=False, indent=2)
+
+print(f"✅ 成功导出 {len(cards_list)} 张大阿卡纳牌")
+print("📁 保存位置：knowledge_base/structured/major_arcana.json")
