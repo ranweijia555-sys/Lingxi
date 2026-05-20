@@ -53,3 +53,14 @@ def reduce_number(n):
     while n > 9:
         n = sum(int(digit) for digit in str(n))
     return n
+
+def load_spreads():
+    """加载牌阵定义"""
+    with open("knowledge_base/structured/spreads.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data["spreads"]
+
+def get_spread(spread_key):
+    """根据 key 获取单个牌阵定义"""
+    spreads = load_spreads()
+    return spreads.get(spread_key)

@@ -32,14 +32,22 @@ def format_cards(cards, positions):
     return "\n".join(lines)
 
 
-def find_core_card(cards):
-    """无牌阵逻辑：编号最小的大卡为核心牌"""
+def find_core_card(cards, logic="no_spread"):
+    """
+    根据牌阵逻辑找出核心牌
+    
+    - single: 只有一张，就是它
+    - no_spread: 编号最小的为核心
+    - timeline: "现在"位置（中间）的为核心
+    """
+    if len(cards) == 1:
+        return cards[0]
+    
+    if logic == "timeline":
+        # 时间线牌阵：中间的牌（现在）是核心
+        return cards[len(cards) // 2]
+    
+    # 默认无牌阵逻辑：编号最小为核心
     arcana_order = list(MAJOR_ARCANA.keys())
     core = min(cards, key=lambda c: arcana_order.index(c["card"]))
     return core
-
-
-if __name__ == "__main__":
-    cards = draw_cards(3)
-    print(format_cards(cards, ["牌一", "牌二", "牌三"]))
-    print(f"\n核心牌：{find_core_card(cards)['card']}")

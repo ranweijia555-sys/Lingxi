@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "description": "塔罗牌阵定义",
+  "spreads": {
+    "single": {
+      "name": "单张指引",
+      "card_count": 1,
+      "positions": ["今日指引"],
+      "logic": "single",
+      "description": "适合快速获得当下的能量提示。"
+    },
+    "three_no_spread": {
+      "name": "三张无牌阵",
+      "card_count": 3,
+      "positions": ["牌一", "牌二", "牌三"],
+      "logic": "no_spread",
+      "description": "三张牌无固定位置含义，由编号最小的大牌作为核心牌，灵活解读。"
+    },
+    "three_timeline": {
+      "name": "三张时间线",
+      "card_count": 3,
+      "positions": ["过去", "现在", "未来"],
+      "logic": "timeline",
+      "description": "按时间顺序解读，看事件的发展脉络。"
+    }
+  }
+}
