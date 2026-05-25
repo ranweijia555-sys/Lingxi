@@ -35,11 +35,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# 兼容本地 .env 和 Streamlit Cloud Secrets
+def get_api_key():
+    """优先用 Streamlit Secrets，本地 fallback 到 .env"""
+    key = os.getenv("DEEPSEEK_API_KEY")
+    if key:
+        return key
+    # Streamlit Cloud 场景
+    try:
+        import streamlit as st
+        return st.secrets["DEEPSEEK_API_KEY"]
+    except Exception:
+        return None
+
+
 client = OpenAI(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    api_key=get_api_key(),
     base_url="https://api.deepseek.com"
 )
-
 
 def _call_llm(system_prompt, user_prompt):
     """统一的 LLM 调用接口"""
