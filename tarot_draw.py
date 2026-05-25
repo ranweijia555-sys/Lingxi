@@ -8,7 +8,7 @@ from tarot.history import save_reading, show_history_summary
 
 def choose_mode():
     """让用户选择主菜单"""
-    print("🔮 欢迎来到灵犀塔罗")
+    print("✦ 欢迎来到灵案 AstRa")
     print()
     print("请选择：")
     print("  1. 开始新的占卜")

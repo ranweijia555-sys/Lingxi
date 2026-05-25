@@ -1,4 +1,4 @@
-"""灵犀塔罗 - 莫兰迪 + 神秘卡牌版"""
+"""灵案 AstRa - 莫兰迪 + 神秘卡牌版"""
 import time
 import streamlit as st
 from tarot.drawer import draw_cards, find_core_card
@@ -9,8 +9,8 @@ from tarot.history import save_reading
 
 
 st.set_page_config(
-    page_title="灵犀塔罗 Lingxi",
-    page_icon="🔮",
+    page_title="灵案 AstRa",
+    page_icon="✦",
     layout="centered"
 )
 
@@ -277,8 +277,8 @@ if "cards" not in st.session_state:
 
 
 # === 标题 ===
-st.markdown('<div class="lingxi-title">⊹ 灵 犀 塔 罗 ⊹</div>', unsafe_allow_html=True)
-st.markdown('<div class="lingxi-subtitle">— L i n g x i  ·  多 源 符 号 占 卜 —</div>', unsafe_allow_html=True)
+st.markdown('<div class="lingxi-title">⊹ 灵 案  A s t R a ⊹</div>', unsafe_allow_html=True)
+st.markdown('<div class="lingxi-subtitle">— 西 方 占 星 · 塔 罗 · 东 方 命 理 —</div>', unsafe_allow_html=True)
 
 
 # === 输入区 ===
@@ -413,6 +413,6 @@ if st.session_state.reading_done and st.session_state.cards:
 
 # === 页脚 ===
 st.markdown(
-    '<div class="footer">⊹  L I N G X I  ·  灵 犀 塔 罗  ⊹</div>',
+    '<div class="footer">⊹  A S T  R A  ·  灵 案  ⊹</div>',
     unsafe_allow_html=True
 )
