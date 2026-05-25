@@ -15,9 +15,41 @@ def load_major_arcana():
             "number": card["number"],
             "name_zh": card["name_zh"],
             "element": card.get("element", "未知"),
-            "planet": card.get("planet", "未知")
+            "planet": card.get("planet", "未知"),
+            "suit": "major"  # 标记花色类型
         }
     return arcana_dict
+
+
+def load_minor_arcana():
+    """从 JSON 文件加载 56 张小阿卡纳牌数据"""
+    with open("knowledge_base/structured/minor_arcana.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    arcana_dict = {}
+    for card in data["cards"]:
+        arcana_dict[card["key"]] = {
+            "upright": card["upright"],
+            "reversed": card["reversed"],
+            "number": card.get("number"),  # 宫廷牌为 None
+            "name_zh": card["name_zh"],
+            "element": card.get("element", "未知"),
+            "minor_suit": card.get("minor_suit"),
+            "is_court": card.get("is_court", False),
+            "court_role": card.get("court_role"),
+            "court_element": card.get("court_element"),
+            "domain": card.get("domain"),
+            "suit": "minor"
+        }
+    return arcana_dict
+
+
+def load_full_deck():
+    """加载完整 78 张塔罗牌（大+小）"""
+    major = load_major_arcana()
+    minor = load_minor_arcana()
+    full = {**major, **minor}  # 字典合并
+    return full
 
 
 def load_tarot_system():

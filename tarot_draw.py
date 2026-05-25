@@ -2,7 +2,7 @@
 from tarot.drawer import draw_cards, format_cards, find_core_card
 from tarot.analyzer import build_analysis_report
 from tarot.interpreter import interpret_single_card, synthesize_reading
-from tarot.data_loader import load_spreads, load_major_arcana
+from tarot.data_loader import load_spreads, load_full_deck 
 from tarot.history import save_reading, show_history_summary
 
 
@@ -65,7 +65,7 @@ def do_reading():
     core_card = find_core_card(cards, logic=spread["logic"])
     
     # 6. 准备数据
-    arcana = load_major_arcana()
+    arcana = load_full_deck()
     
     # 7. 逐张深度解读
     print("=" * 50)
