@@ -1,10 +1,6 @@
 # ✦ 灵案 AstRa
 
-> 一款融合**西方占星 · 塔罗 · 东方命理**的 AI 占卜助手
-
-<p align="center">
-  <img src="docs/screenshot.png" alt="灵案 AstRa Demo" width="700"/>
-</p>
+> 一款融合 **西方占星 · 塔罗 · 东方命理** 的 AI 占卜助手
 
 🔗 **在线体验**：[lingan-astra.streamlit.app](https://lingan-astra.streamlit.app)
 
@@ -26,30 +22,17 @@
 ---
 
 ## 🏗️ 技术架构
-┌─────────────────────────────────────────────────┐
-│         Streamlit Web App (app.py)              │
-│   牌阵选择  ·  输入问题  ·  展示牌与解读             │
-└────────────────────┬────────────────────────────┘
-│
-┌────────────────────▼────────────────────────────┐
-│              tarot/ 核心模块                      │
-│                                                  │
-│   data_loader   ←  加载 JSON 知识库                │
-│   drawer        ←  抽牌 + 完整核心牌规则            │
-│   analyzer      ←  元素分布 + 灵数归元              │
-│   interpreter   ←  多步链式 LLM 解读                │
-│   history       ←  占卜历史持久化                   │
-└────────────────────┬────────────────────────────┘
-│
-┌────────────────────▼────────────────────────────┐
-│       knowledge_base/ 结构化知识库                │
-│                                                  │
-│   structured/major_arcana.json    22 张大牌      │
-│   structured/minor_arcana.json    56 张小牌      │
-│   structured/tarot_system.json    元素+灵数体系   │
-│   structured/spreads.json         牌阵定义        │
-│   canonical/*.md                  权威文档（RAG）  │
-└─────────────────────────────────────────────────┘
+
+| 层级 | 模块 | 职责 |
+|---|---|---|
+| **前端** | `app.py` | Streamlit Web App：牌阵选择、输入问题、展示牌与解读 |
+| **核心** | `tarot/data_loader.py` | 加载 JSON 知识库 |
+| **核心** | `tarot/drawer.py` | 抽牌 + 完整核心牌规则 |
+| **核心** | `tarot/analyzer.py` | 元素分布 + 灵数归元分析 |
+| **核心** | `tarot/interpreter.py` | 多步链式 LLM 解读 |
+| **核心** | `tarot/history.py` | 占卜历史持久化 |
+| **数据** | `knowledge_base/structured/` | 22 大牌 + 56 小牌 + 元素灵数体系 + 牌阵定义 |
+| **数据** | `knowledge_base/canonical/` | 权威文档（RAG 素材） |
 
 ---
 
@@ -82,45 +65,11 @@
 
 ## 🚀 本地运行
 
-```bash
-# 1. 克隆仓库
-git clone https://github.com/ranweijia555-sys/Lingxi.git
-cd Lingxi
-
-# 2. 安装依赖
-pip3 install -r requirements.txt
-
-# 3. 配置 API Key
-cp .env.example .env
-# 编辑 .env，填入你的 DEEPSEEK_API_KEY
-
-# 4. 运行
-streamlit run app.py
-```
-
-浏览器自动打开 `http://localhost:8501`
-
----
-
-## 📁 项目结构
-
-Lingxi/
-├── app.py                          # Streamlit 主入口
-├── tarot_draw.py                   # 命令行入口
-├── tarot/                          # 核心模块
-│   ├── data_loader.py              # 数据加载
-│   ├── drawer.py                   # 抽牌逻辑
-│   ├── analyzer.py                 # 体系化分析
-│   ├── interpreter.py              # AI 解读
-│   ├── history.py                  # 历史记录
-│   └── card_picker.py              # 手动选牌（拍照识别前置）
-├── knowledge_base/
-│   ├── structured/                 # 结构化数据
-│   └── canonical/                  # 权威文档
-├── build_tarot_json.py             # 大卡数据导出脚本
-├── build_minor_arcana.py           # 小卡数据导出脚本
-├── build_tarot_system.py           # 体系知识导出脚本
-└── .streamlit/config.toml          # 主题配置
+1. 克隆仓库
+2. 安装依赖：`pip3 install -r requirements.txt`
+3. 创建 `.env` 文件，填入 `DEEPSEEK_API_KEY=你的key`
+4. 运行：`streamlit run app.py`
+5. 浏览器打开 `http://localhost:8501`
 
 ---
 
@@ -162,4 +111,4 @@ MIT
 
 ---
 
-<p align="center">⊹  灵案 AstRa  ·  当代命理 × AI  ⊹</p>
+⊹  灵案 AstRa  ·  当代命理 × AI  ⊹
