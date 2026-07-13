@@ -29,36 +29,15 @@ RESPONSIBLE_AI_GUIDELINES = """
 """
 
 """塔罗 AI 解读模块（多步链式版：单卡深读 + 整体汇总）"""
-import os
-from openai import OpenAI
-from dotenv import load_dotenv
+from tarot.llm_client import get_text_client, TEXT_MODEL
 
-load_dotenv()
-
-# 兼容本地 .env 和 Streamlit Cloud Secrets
-def get_api_key():
-    """优先用 Streamlit Secrets，本地 fallback 到 .env"""
-    key = os.getenv("DEEPSEEK_API_KEY")
-    if key:
-        return key
-    # Streamlit Cloud 场景
-    try:
-        import streamlit as st
-        return st.secrets["DEEPSEEK_API_KEY"]
-    except Exception:
-        return None
-
-
-client = OpenAI(
-    api_key=get_api_key(),
-    base_url="https://api.deepseek.com"
-)
+client = get_text_client()
 
 def _call_llm(system_prompt, user_prompt):
     """统一的 LLM 调用接口"""
     try:
         response = client.chat.completions.create(
-            model="deepseek-chat",
+            model=TEXT_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
