@@ -14,6 +14,7 @@ def load_major_arcana():
             "reversed": card["reversed"],
             "number": card["number"],
             "name_zh": card["name_zh"],
+            "name_en": card.get("name_en", ""),
             "element": card.get("element", "未知"),
             "planet": card.get("planet", "未知"),
             "suit": "major"  # 标记花色类型
@@ -33,6 +34,7 @@ def load_minor_arcana():
             "reversed": card["reversed"],
             "number": card.get("number"),  # 宫廷牌为 None
             "name_zh": card["name_zh"],
+            "name_en": card.get("name_en", ""),
             "element": card.get("element", "未知"),
             "minor_suit": card.get("minor_suit"),
             "is_court": card.get("is_court", False),
