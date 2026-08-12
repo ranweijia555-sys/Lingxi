@@ -38,3 +38,33 @@ export interface InterpretResponse {
   summary: string;
   reading_id: number;
 }
+
+export interface DeckCard {
+  card: string;
+  name_zh: string;
+  name_en: string;
+}
+
+export interface VisionCard {
+  card: string;
+  orientation: Orientation;
+  confidence: number;
+  valid: boolean;
+}
+
+export interface VisionRecognizeResponse {
+  success: boolean;
+  cards: VisionCard[];
+  error?: string | null;
+}
+
+export interface HistoryEntry {
+  id: number;
+  timestamp: string;
+  question: string;
+  spread: string;
+  cards: DrawnCard[];
+  core_card: string;
+  single_interpretations: InterpretationItem[];
+  summary: string;
+}

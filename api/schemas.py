@@ -1,5 +1,5 @@
 """FastAPI 请求/响应模型"""
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel
 
@@ -54,3 +54,38 @@ class InterpretResponse(BaseModel):
     interpretations: List[InterpretationItem]
     summary: str
     reading_id: int
+
+
+class DeckCardOut(BaseModel):
+    card: str
+    name_zh: str
+    name_en: str
+
+
+class VisionCardOut(BaseModel):
+    card: str
+    orientation: Orientation
+    confidence: float
+    valid: bool
+
+
+class VisionRecognizeResponse(BaseModel):
+    success: bool
+    cards: List[VisionCardOut]
+    error: Optional[str] = None
+
+
+class ResolveRequest(BaseModel):
+    cards: List[CardOut]
+    spread_key: str
+
+
+class HistoryEntry(BaseModel):
+    id: int
+    timestamp: str
+    question: str
+    spread: str
+    cards: List[CardOut]
+    core_card: str
+    single_interpretations: List[InterpretationItem]
+    summary: str

@@ -1,9 +1,11 @@
+import WaveRule from "@/components/WaveRule";
 import type { InterpretResponse } from "@/lib/types";
 
 export default function ReadingResult({ result }: { result: InterpretResponse }) {
   return (
     <div className="reading-result">
       <h3>✦ 逐张深度解读</h3>
+      <WaveRule className="wave-rule-tight" />
       {result.interpretations.map((item, i) => (
         <div className="interp-block" key={i}>
           <div className="interp-title">

@@ -1,13 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import CardFan from "@/components/CardFan";
 import CardSlot from "@/components/CardSlot";
+import ModeToggle, { type ReadingMode } from "@/components/ModeToggle";
+import PhotoRecognize from "@/components/PhotoRecognize";
 import ReadingResult from "@/components/ReadingResult";
 import SpreadPicker from "@/components/SpreadPicker";
-import { drawCards, getSpreads, interpretReading } from "@/lib/api";
-import type { DrawResponse, InterpretResponse, Spread } from "@/lib/types";
+import WaveRule from "@/components/WaveRule";
+import { drawCards, getSpreads, interpretReading, resolveVisionCards } from "@/lib/api";
+import type { DrawnCard, DrawResponse, InterpretResponse, Spread } from "@/lib/types";
 
 type Phase = "setup" | "drawing" | "revealed" | "interpreting" | "done";
 
@@ -15,6 +19,7 @@ export default function Home() {
   const [spreads, setSpreads] = useState<Spread[]>([]);
   const [spreadKey, setSpreadKey] = useState("");
   const [question, setQuestion] = useState("");
+  const [mode, setMode] = useState<ReadingMode>("draw");
   const [phase, setPhase] = useState<Phase>("setup");
   const [draw, setDraw] = useState<DrawResponse | null>(null);
   const [pickedCount, setPickedCount] = useState(0);
@@ -32,6 +37,24 @@ export default function Home() {
   }, []);
 
   const selectedSpread = spreads.find((s) => s.key === spreadKey);
+
+  async function runReveal(drawResponse: DrawResponse) {
+    setPhase("revealed");
+    setTimeout(() => setPhase("interpreting"), 300);
+    try {
+      const res = await interpretReading({
+        question,
+        spread_key: spreadKey,
+        cards: drawResponse.cards,
+        core_card: drawResponse.core_card,
+      });
+      setResult(res);
+      setPhase("done");
+    } catch {
+      setError("解读失败，请稍后重试");
+      setPhase("revealed");
+    }
+  }
 
   async function handleStart() {
     if (!question.trim() || !spreadKey) return;
@@ -65,20 +88,23 @@ export default function Home() {
 
   async function handleReveal() {
     if (!draw) return;
-    setPhase("revealed");
-    setTimeout(() => setPhase("interpreting"), 300);
+    runReveal(draw);
+  }
+
+  async function handlePhotoConfirmed(cards: DrawnCard[]) {
+    if (!question.trim() || !spreadKey) {
+      setError("请先选择牌阵并输入问题");
+      return;
+    }
+    setError(null);
     try {
-      const res = await interpretReading({
-        question,
-        spread_key: spreadKey,
-        cards: draw.cards,
-        core_card: draw.core_card,
-      });
-      setResult(res);
-      setPhase("done");
+      const res = await resolveVisionCards(cards, spreadKey);
+      setDraw(res);
+      setPickedCount(res.cards.length);
+      setDrawKey((k) => k + 1);
+      runReveal(res);
     } catch {
-      setError("解读失败，请稍后重试");
-      setPhase("revealed");
+      setError("识别结果确认失败，请稍后重试");
     }
   }
 
@@ -96,18 +122,32 @@ export default function Home() {
       <header>
         <div className="mark">灵案 · AstRa</div>
         <h1>{phase === "setup" ? "抽取你的牌" : "扫过牌阵，感受呼应你的那一张"}</h1>
+        <WaveRule />
+        {phase === "setup" && (
+          <Link href="/history" className="history-link">
+            📜 历史记录
+          </Link>
+        )}
         {error && <p className="error">{error}</p>}
       </header>
 
       {phase === "setup" && (
-        <SpreadPicker
-          spreads={spreads}
-          spreadKey={spreadKey}
-          onSpreadChange={setSpreadKey}
-          question={question}
-          onQuestionChange={setQuestion}
-          onStart={handleStart}
-        />
+        <>
+          <ModeToggle mode={mode} onChange={setMode} />
+          <SpreadPicker
+            spreads={spreads}
+            spreadKey={spreadKey}
+            onSpreadChange={setSpreadKey}
+            question={question}
+            onQuestionChange={setQuestion}
+            onStart={handleStart}
+            showStartButton={mode === "draw"}
+          >
+            {mode === "photo" && selectedSpread && (
+              <PhotoRecognize expectedCount={selectedSpread.card_count} onConfirm={handlePhotoConfirmed} />
+            )}
+          </SpreadPicker>
+        </>
       )}
 
       {phase !== "setup" && draw && selectedSpread && (

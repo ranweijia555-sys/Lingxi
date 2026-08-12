@@ -53,7 +53,7 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
       el.style.transform = `${base} translateY(${-lift}px) scale(${scale})`;
       el.style.filter = `brightness(${1 + 0.35 * f})`;
       el.style.zIndex = String(100 + Math.round(f * 100));
-      el.style.boxShadow = f > 0.5 ? `0 12px 30px rgba(201,168,106,${0.28 * f})` : "";
+      el.style.boxShadow = f > 0.5 ? `0 12px 30px rgba(169,121,58,${0.28 * f})` : "";
     });
   }
 

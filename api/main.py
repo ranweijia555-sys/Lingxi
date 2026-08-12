@@ -1,24 +1,31 @@
 """灵案 AstRa - FastAPI 后端（供 Next.js 抽牌页调用，逻辑复用 tarot/ 包）"""
 import os
+from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from tarot.analyzer import build_analysis_report
 from tarot.data_loader import load_full_deck, load_spreads
 from tarot.drawer import draw_cards, find_core_card
-from tarot.history import save_reading
+from tarot.history import load_history, save_reading
 from tarot.interpreter import interpret_single_card, synthesize_reading
+from tarot.vision import recognize_cards
 
 from api.schemas import (
     CardDisplay,
     CardOut,
+    DeckCardOut,
     DrawRequest,
     DrawResponse,
+    HistoryEntry,
     InterpretationItem,
     InterpretRequest,
     InterpretResponse,
+    ResolveRequest,
     SpreadOut,
+    VisionCardOut,
+    VisionRecognizeResponse,
 )
 
 app = FastAPI(title="灵案 AstRa API")
@@ -76,19 +83,21 @@ def get_spreads():
     ]
 
 
-@app.post("/api/draw", response_model=DrawResponse)
-def draw(req: DrawRequest):
-    spread = _get_spread(req.spread_key)
-
-    cards = draw_cards(spread["card_count"])
+def _build_draw_response(cards: list[dict], spread: dict) -> DrawResponse:
     core = find_core_card(cards, logic=spread["logic"])
-
     return DrawResponse(
         cards=[CardOut(**c) for c in cards],
         core_card=CardOut(**core),
         positions=spread["positions"],
         display=[_display_for(c["card"], c["orientation"]) for c in cards],
     )
+
+
+@app.post("/api/draw", response_model=DrawResponse)
+def draw(req: DrawRequest):
+    spread = _get_spread(req.spread_key)
+    cards = draw_cards(spread["card_count"])
+    return _build_draw_response(cards, spread)
 
 
 @app.post("/api/interpret", response_model=InterpretResponse)
@@ -124,3 +133,44 @@ def interpret(req: InterpretRequest):
     )
 
     return InterpretResponse(interpretations=interpretations, summary=summary, reading_id=reading_id)
+
+
+@app.get("/api/deck", response_model=list[DeckCardOut])
+def get_deck():
+    return [
+        DeckCardOut(card=key, name_zh=data["name_zh"], name_en=data.get("name_en", ""))
+        for key, data in FULL_DECK.items()
+    ]
+
+
+@app.post("/api/vision/recognize", response_model=VisionRecognizeResponse)
+async def vision_recognize(file: UploadFile = File(...), expected_count: Optional[int] = Form(None)):
+    image_bytes = await file.read()
+    result = recognize_cards(image_bytes, expected_count=expected_count)
+    return VisionRecognizeResponse(
+        success=result["success"],
+        cards=[
+            VisionCardOut(
+                card=c["card"],
+                orientation=c["orientation"],
+                confidence=c["confidence"],
+                valid=c["valid"],
+            )
+            for c in result["cards"]
+        ],
+        error=result.get("error"),
+    )
+
+
+@app.post("/api/vision/resolve", response_model=DrawResponse)
+def vision_resolve(req: ResolveRequest):
+    spread = _get_spread(req.spread_key)
+    cards = [c.model_dump() for c in req.cards]
+    return _build_draw_response(cards, spread)
+
+
+@app.get("/api/history", response_model=list[HistoryEntry])
+def get_history(limit: int = 20):
+    history = load_history()
+    recent = history[-limit:][::-1]
+    return [HistoryEntry(**entry) for entry in recent]

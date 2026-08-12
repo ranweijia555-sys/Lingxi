@@ -1,5 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
+
+import CornerFlourish from "@/components/CornerFlourish";
 import type { Spread } from "@/lib/types";
 
 interface SpreadPickerProps {
@@ -9,6 +12,8 @@ interface SpreadPickerProps {
   question: string;
   onQuestionChange: (q: string) => void;
   onStart: () => void;
+  showStartButton?: boolean;
+  children?: ReactNode;
 }
 
 export default function SpreadPicker({
@@ -18,11 +23,17 @@ export default function SpreadPicker({
   question,
   onQuestionChange,
   onStart,
+  showStartButton = true,
+  children,
 }: SpreadPickerProps) {
   const selected = spreads.find((s) => s.key === spreadKey);
 
   return (
-    <div className="setup-panel">
+    <div className="setup-panel ornate-frame">
+      <CornerFlourish className="corner-flourish tl" />
+      <CornerFlourish className="corner-flourish tr" />
+      <CornerFlourish className="corner-flourish bl" />
+      <CornerFlourish className="corner-flourish br" />
       <label className="field-label" htmlFor="spread-select">
         选择牌阵
       </label>
@@ -46,9 +57,13 @@ export default function SpreadPicker({
         rows={3}
       />
 
-      <button className="primary" disabled={!question.trim() || !spreadKey} onClick={onStart}>
-        ✦ 开始占卜 ✦
-      </button>
+      {showStartButton && (
+        <button className="primary" disabled={!question.trim() || !spreadKey} onClick={onStart}>
+          ✦ 开始占卜 ✦
+        </button>
+      )}
+
+      {children}
     </div>
   );
 }
