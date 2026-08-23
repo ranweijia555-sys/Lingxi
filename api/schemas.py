@@ -42,6 +42,7 @@ class InterpretRequest(BaseModel):
     spread_key: str
     cards: List[CardOut]
     core_card: CardOut
+    language: Literal["zh", "en"] = "zh"
 
 
 class InterpretationItem(BaseModel):

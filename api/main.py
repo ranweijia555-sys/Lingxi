@@ -46,6 +46,22 @@ app.add_middleware(
 
 FULL_DECK = load_full_deck()
 
+POSITION_EN = {
+    "今日指引": "Guidance",
+    "牌一": "Card One",
+    "牌二": "Card Two",
+    "牌三": "Card Three",
+    "过去": "Past",
+    "现在": "Present",
+    "未来": "Future",
+}
+
+SPREAD_NAME_EN = {
+    "single": "Single Card Guidance",
+    "three_no_spread": "Three Card Open Reading",
+    "three_timeline": "Past · Present · Future",
+}
+
 
 def _keyword(meaning: str) -> str:
     return meaning.split("、")[0]
@@ -108,10 +124,18 @@ def interpret(req: InterpretRequest):
     core_card = req.core_card.model_dump()
 
     interpretations: list[InterpretationItem] = []
-    for position, card_info in zip(spread["positions"], cards):
+    for raw_position, card_info in zip(spread["positions"], cards):
+        position = POSITION_EN.get(raw_position, raw_position) if req.language == "en" else raw_position
         is_core = card_info["card"] == core_card["card"]
         card_detail = FULL_DECK[card_info["card"]]
-        text = interpret_single_card(req.question, card_info, position, card_detail, is_core)
+        text = interpret_single_card(
+            req.question,
+            card_info,
+            position,
+            card_detail,
+            is_core,
+            language=req.language,
+        )
         interpretations.append(
             InterpretationItem(position=position, card=card_info["card"], interpretation=text)
         )
@@ -121,11 +145,12 @@ def interpret(req: InterpretRequest):
         req.question,
         [item.model_dump() for item in interpretations],
         analysis_report,
+        language=req.language,
     )
 
     reading_id = save_reading(
         question=req.question,
-        spread_name=spread["name"],
+        spread_name=SPREAD_NAME_EN.get(req.spread_key, spread["name"]) if req.language == "en" else spread["name"],
         cards=cards,
         core_card=core_card,
         single_interpretations=[item.model_dump() for item in interpretations],

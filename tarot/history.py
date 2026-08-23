@@ -2,16 +2,21 @@
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 
-HISTORY_FILE = "data/history/readings.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_configured_history_file = os.getenv("LINGXI_HISTORY_FILE")
+HISTORY_FILE = Path(_configured_history_file).expanduser() if _configured_history_file else PROJECT_ROOT / "data/history/readings.json"
+if not HISTORY_FILE.is_absolute():
+    HISTORY_FILE = PROJECT_ROOT / HISTORY_FILE
 
 
 def _ensure_history_file():
     """确保历史文件存在"""
-    os.makedirs(os.path.dirname(HISTORY_FILE), exist_ok=True)
-    if not os.path.exists(HISTORY_FILE):
-        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+    HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if not HISTORY_FILE.exists():
+        with HISTORY_FILE.open("w", encoding="utf-8") as f:
             json.dump({"readings": []}, f, ensure_ascii=False, indent=2)
 
 
@@ -26,7 +31,7 @@ def save_reading(question, spread_name, cards, core_card, single_interpretations
     _ensure_history_file()
     
     # 读旧记录
-    with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+    with HISTORY_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
     
     # 构造新记录
@@ -49,7 +54,7 @@ def save_reading(question, spread_name, cards, core_card, single_interpretations
     
     # 追加 + 写回
     data["readings"].append(new_reading)
-    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+    with HISTORY_FILE.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     
     return new_reading["id"]
@@ -58,7 +63,7 @@ def save_reading(question, spread_name, cards, core_card, single_interpretations
 def load_history():
     """加载所有历史记录"""
     _ensure_history_file()
-    with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+    with HISTORY_FILE.open("r", encoding="utf-8") as f:
         data = json.load(f)
     return data["readings"]
 

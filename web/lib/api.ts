@@ -7,6 +7,7 @@ import type {
   Spread,
   VisionRecognizeResponse,
 } from "./types";
+import type { Language } from "./language";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
 
@@ -48,6 +49,7 @@ export function interpretReading(payload: {
   spread_key: string;
   cards: DrawnCard[];
   core_card: DrawnCard;
+  language?: Language;
 }): Promise<InterpretResponse> {
   return request<InterpretResponse>("/api/interpret", {
     method: "POST",

@@ -28,6 +28,14 @@ RESPONSIBLE_AI_GUIDELINES = """
    - 整体语气保持温柔、知性、有边界感，避免过度亲密
 """
 
+RESPONSIBLE_AI_GUIDELINES_EN = """
+Treat tarot as a reflective tool, never as certainty or professional advice. Do not predict death,
+disaster, illness, or guaranteed outcomes. For medical, mental-health, legal, financial, relationship,
+or other major decisions, keep firm boundaries and encourage appropriate professional or trusted
+support. Avoid restrictive body, diet, calorie, or exercise targets. Be warm and thoughtful without
+pet names, fear-based language, or exaggerated claims.
+"""
+
 """塔罗 AI 解读模块（多步链式版：单卡深读 + 整体汇总）"""
 from tarot.llm_client import get_text_client, TEXT_MODEL
 
@@ -48,7 +56,7 @@ def _call_llm(system_prompt, user_prompt):
         return f"⚠️ AI 解读失败：{e}"
 
 
-def interpret_single_card(question, card_info, position, card_detail, is_core):
+def interpret_single_card(question, card_info, position, card_detail, is_core, language="zh"):
     """
     解读单张牌
     
@@ -58,10 +66,31 @@ def interpret_single_card(question, card_info, position, card_detail, is_core):
     is_core: 是否为核心牌
     """
     orientation_zh = "正位" if card_info["orientation"] == "upright" else "逆位"
+    orientation_en = "upright" if card_info["orientation"] == "upright" else "reversed"
     meaning = card_detail["upright"] if card_info["orientation"] == "upright" else card_detail["reversed"]
     
     role_label = "（核心牌 ⭐）" if is_core else ""
     
+    if language == "en":
+        user_prompt = f"""The user's question: {question}
+
+Card to interpret:
+- Position: {position}{" (core card)" if is_core else ""}
+- Card: {card_info['card']} ({orientation_en})
+- Element: {card_detail.get('element', '?')}
+- Astrological correspondence: {card_detail.get('planet', '?')}
+- Number: {card_detail.get('number', '?')}
+- Traditional meaning: {meaning}
+
+Write a focused interpretation of 90–130 words. Connect the card directly to the question, weave in
+elemental or astrological details only when useful, and provide grounded reflection rather than a
+fixed prediction. Return one natural paragraph in English without a heading."""
+        system_prompt = (
+            "You are a thoughtful, grounded tarot reader who uses elemental and astrological symbolism.\n\n"
+            + RESPONSIBLE_AI_GUIDELINES_EN
+        )
+        return _call_llm(system_prompt, user_prompt)
+
     user_prompt = f"""用户的问题：{question}
 
 需要解读的牌：
@@ -85,7 +114,7 @@ def interpret_single_card(question, card_info, position, card_detail, is_core):
     return _call_llm(system_prompt, user_prompt)
 
 
-def synthesize_reading(question, cards_with_interpretations, analysis_report):
+def synthesize_reading(question, cards_with_interpretations, analysis_report, language="zh"):
     """
     综合解读 — 在三张牌的单独解读基础上，给出整体能量与建议
     
@@ -96,6 +125,24 @@ def synthesize_reading(question, cards_with_interpretations, analysis_report):
         for item in cards_with_interpretations
     ])
     
+    if language == "en":
+        user_prompt = f"""The user's question: {question}
+
+The individual card interpretations are complete:
+{cards_summary}
+
+Systemic analysis reference:
+{analysis_report}
+
+Synthesize the reading in no more than 170 words. Describe the movement across the cards, state the
+central insight clearly, and finish with one specific, realistic next step. Keep the tone warm,
+grounded, and non-deterministic. Return one flowing paragraph in English without a heading."""
+        system_prompt = (
+            "You synthesize multi-card tarot readings into clear, practical reflection.\n\n"
+            + RESPONSIBLE_AI_GUIDELINES_EN
+        )
+        return _call_llm(system_prompt, user_prompt)
+
     user_prompt = f"""用户的问题：{question}
 
 你已经解读完了每张牌：
