@@ -11,7 +11,10 @@ export default function SiteHeader({ active = "reading" }: { active?: "reading" 
       <Link className="brand" href="/" aria-label="灵案首页">
         <span className="brand-sun" aria-hidden="true">✦</span>
         <span className="brand-copy">
-          <strong>灵案</strong>
+          <strong className="brand-wordmark" aria-label="灵案">
+            <span className="brand-glyph" aria-hidden="true">灵</span>
+            <span className="brand-glyph" aria-hidden="true">案</span>
+          </strong>
           <small>ASTRA TAROT</small>
         </span>
       </Link>

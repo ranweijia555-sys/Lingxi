@@ -66,7 +66,7 @@ export default function SpreadPicker({
         value={question}
         onChange={(e) => onQuestionChange(e.target.value)}
         placeholder={language === "zh" ? "例如：我下半年的事业会有什么变化？" : "For example: What should I focus on in my career this year?"}
-        rows={3}
+        rows={2}
       />
 
       {showStartButton && (

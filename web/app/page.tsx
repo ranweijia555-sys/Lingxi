@@ -18,6 +18,47 @@ import type { DrawnCard, DrawResponse, InterpretResponse, Spread } from "@/lib/t
 
 type Phase = "setup" | "drawing" | "revealed" | "interpreting" | "done";
 
+const HERO_CARD_POOL = [
+  "女祭司",
+  "愚者",
+  "魔术师",
+  "皇后",
+  "恋人",
+  "战车",
+  "力量",
+  "隐士",
+  "命运之轮",
+  "星星",
+  "月亮",
+  "太阳",
+  "世界",
+];
+
+const METHOD_COPY = {
+  zh: {
+    eyebrow: "READING LOGIC",
+    summary: "78 张随机牌组 → 体系化牌义 → AI 仅负责整合表达",
+    expand: "展开逻辑",
+    steps: [
+      { number: "01", title: "随机抽取", detail: "从完整 78 张牌中随机抽牌并决定正、逆位；AI 不参与抽牌。" },
+      { number: "02", title: "体系分析", detail: "结合牌阵位置、核心牌规则、传统牌义、元素、占星与灵数。" },
+      { number: "03", title: "语言整合", detail: "AI 将既定结构与你的问题连接，整理为清晰、可反思的表达。" },
+    ],
+    boundary: "塔罗在这里是一种反思工具，不提供确定预言，也不替代你的判断或专业建议。",
+  },
+  en: {
+    eyebrow: "READING LOGIC",
+    summary: "78-card random draw → structured symbolism → AI shapes the language only",
+    expand: "View method",
+    steps: [
+      { number: "01", title: "Random draw", detail: "Cards and orientations are selected from the full 78-card deck without AI involvement." },
+      { number: "02", title: "System reading", detail: "Positions, core-card rules, traditional meanings, elements, astrology, and numerology are combined." },
+      { number: "03", title: "Language synthesis", detail: "AI connects that fixed structure to your question and makes the reflection readable." },
+    ],
+    boundary: "Tarot is used here as a reflective tool—not certainty, a prediction, or a substitute for your judgment or professional advice.",
+  },
+};
+
 const PHASE_COPY: Record<Language, Record<Exclude<Phase, "setup">, { eyebrow: string; title: string; note: string }>> = {
   zh: {
     drawing: { eyebrow: "THE DRAW", title: "让目光掠过牌阵", note: "停在最先让你产生感觉的位置，然后轻触它。" },
@@ -81,6 +122,7 @@ const HOME_COPY = {
 export default function Home() {
   const { language } = useLanguage();
   const copy = HOME_COPY[language];
+  const methodCopy = METHOD_COPY[language];
   const [spreads, setSpreads] = useState<Spread[]>([]);
   const [spreadKey, setSpreadKey] = useState("");
   const [question, setQuestion] = useState("");
@@ -91,6 +133,8 @@ export default function Home() {
   const [result, setResult] = useState<InterpretResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [drawKey, setDrawKey] = useState(0);
+  const [heroFlipped, setHeroFlipped] = useState(false);
+  const [heroCard, setHeroCard] = useState("女祭司");
 
   useEffect(() => {
     if (spreads.length) return;
@@ -177,54 +221,128 @@ export default function Home() {
     setError(null);
   }
 
+  function chooseNextHeroCard() {
+    setHeroCard((currentCard) => {
+      const choices = HERO_CARD_POOL.filter((card) => card !== currentCard);
+      return choices[Math.floor(Math.random() * choices.length)];
+    });
+  }
+
+  function handleHeroClick() {
+    if (heroFlipped) chooseNextHeroCard();
+    setHeroFlipped((flipped) => !flipped);
+  }
+
   if (phase === "setup") {
     return (
       <div className="site-shell landing-shell">
         <SiteHeader />
         <main className="landing-main">
-          <section className="landing-intro">
-            <div className="intro-copy animate-in">
-              <span className="eyebrow">{copy.ritual}</span>
-              <h1>{copy.title}</h1>
-              <div className="celestial-rule" aria-hidden="true"><span>✦</span></div>
-              <p className="intro-lede">
-                {copy.lede}
-              </p>
-            </div>
+          <section className="ritual-workspace" aria-labelledby="setup-title">
+            <div className="ritual-form-column">
+              <div className="intro-copy animate-in">
+                <span className="eyebrow">{copy.ritual}</span>
+                <h1 className={`ritual-title ritual-title-${language}`}>
+                  {language === "zh" ? (
+                    <>
+                      <span className="ritual-title-line">
+                        {["为", "此", "刻", "，"].map((character) => (
+                          <span className="ritual-title-glyph" key={character}>{character}</span>
+                        ))}
+                      </span>
+                      <span className="ritual-title-line">
+                        {["抽", "取", "一", "张", "回", "应"].map((character) => (
+                          <span className="ritual-title-glyph" key={character}>{character}</span>
+                        ))}
+                      </span>
+                    </>
+                  ) : copy.title}
+                </h1>
+                <div className="celestial-rule" aria-hidden="true"><span>✦</span></div>
+                <p className="intro-lede">{copy.lede}</p>
+                <details className="method-note">
+                  <summary>
+                    <span className="method-kicker">{methodCopy.eyebrow}</span>
+                    <strong>{methodCopy.summary}</strong>
+                    <span className="method-toggle" aria-label={methodCopy.expand}>+</span>
+                  </summary>
+                  <div className="method-body">
+                    <ol className="method-steps">
+                      {methodCopy.steps.map((step) => (
+                        <li key={step.number}>
+                          <span>{step.number}</span>
+                          <strong>{step.title}</strong>
+                          <p>{step.detail}</p>
+                        </li>
+                      ))}
+                    </ol>
+                    <p className="method-boundary"><span aria-hidden="true">✦</span>{methodCopy.boundary}</p>
+                  </div>
+                </details>
+              </div>
 
-            <div className="hero-card-scene animate-in animate-in-delay-1" aria-hidden="true">
-              <div className="hero-card">
-                <Image
-                  src={cardImagePath("女祭司")}
-                  alt=""
-                  fill
-                  priority
-                  sizes="(max-width: 900px) 42vw, 310px"
-                />
+              <div className="setup-section animate-in animate-in-delay-1">
+                <div className="section-label sr-only">
+                  <span>{copy.begin}</span>
+                  <h2 id="setup-title">{copy.choose}</h2>
+                </div>
+                <ModeToggle mode={mode} onChange={setMode} />
+                <SpreadPicker
+                  spreads={spreads}
+                  spreadKey={spreadKey}
+                  onSpreadChange={setSpreadKey}
+                  question={question}
+                  onQuestionChange={setQuestion}
+                  onStart={handleStart}
+                  showStartButton={mode === "draw"}
+                >
+                  {mode === "photo" && selectedSpread && (
+                    <PhotoRecognize expectedCount={selectedSpread.card_count} onConfirm={handlePhotoConfirmed} />
+                  )}
+                </SpreadPicker>
+                {error && <p className="error page-error">{error}</p>}
               </div>
             </div>
-          </section>
 
-          <section className="setup-section animate-in animate-in-delay-2" aria-labelledby="setup-title">
-            <div className="section-label">
-              <span>{copy.begin}</span>
-              <h2 id="setup-title">{copy.choose}</h2>
-            </div>
-            <ModeToggle mode={mode} onChange={setMode} />
-            <SpreadPicker
-              spreads={spreads}
-              spreadKey={spreadKey}
-              onSpreadChange={setSpreadKey}
-              question={question}
-              onQuestionChange={setQuestion}
-              onStart={handleStart}
-              showStartButton={mode === "draw"}
-            >
-              {mode === "photo" && selectedSpread && (
-                <PhotoRecognize expectedCount={selectedSpread.card_count} onConfirm={handlePhotoConfirmed} />
-              )}
-            </SpreadPicker>
-            {error && <p className="error page-error">{error}</p>}
+            <aside className="hero-card-scene animate-in animate-in-delay-2">
+              <span className="card-orbit card-orbit-one" aria-hidden="true" />
+              <span className="card-orbit card-orbit-two" aria-hidden="true" />
+              <button
+                type="button"
+                className={`hero-card${heroFlipped ? " is-flipped" : ""}`}
+                onClick={handleHeroClick}
+                onMouseLeave={() => {
+                  if (!heroFlipped) chooseNextHeroCard();
+                }}
+                aria-label={language === "zh" ? `翻转${heroCard}，查看牌背` : `Flip ${heroCard} to view the card back`}
+                aria-pressed={heroFlipped}
+              >
+                <span className="hero-card-inner">
+                  <span className="hero-card-face hero-card-front">
+                    <Image
+                      key={heroCard}
+                      src={cardImagePath(heroCard)}
+                      alt={language === "zh" ? `${heroCard}塔罗牌` : `${heroCard} tarot card`}
+                      fill
+                      priority
+                      sizes="(max-width: 640px) 58vw, (max-width: 900px) 34vw, 300px"
+                    />
+                  </span>
+                  <span className="hero-card-face hero-card-back">
+                    <Image
+                      src={cardImagePath("牌背")}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 58vw, (max-width: 900px) 34vw, 300px"
+                    />
+                  </span>
+                </span>
+              </button>
+              <div className="hero-card-note">
+                <span aria-hidden="true">☾</span>
+                <p>{language === "zh" ? "每次翻转，遇见不同的牌" : "Each turn reveals another card"}</p>
+              </div>
+            </aside>
           </section>
         </main>
         <SiteFooter />
