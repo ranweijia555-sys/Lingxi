@@ -12,5 +12,11 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ANALYTICS_HASH_SALT
+        sync: false
       - key: ALLOWED_ORIGINS
         value: http://localhost:3000,http://localhost:3001,https://web-pink-ten-h8p4acc4mb.vercel.app

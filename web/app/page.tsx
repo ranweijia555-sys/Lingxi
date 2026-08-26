@@ -12,8 +12,10 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import SpreadPicker from "@/components/SpreadPicker";
 import { drawCards, getSpreads, interpretReading, resolveVisionCards } from "@/lib/api";
+import { trackUsageEvent } from "@/lib/analytics";
 import { cardImagePath } from "@/lib/card-images";
 import { localizedSpread, useLanguage, type Language } from "@/lib/language";
+import { saveLocalReading } from "@/lib/local-history";
 import type { DrawnCard, DrawResponse, InterpretResponse, Spread } from "@/lib/types";
 
 type Phase = "setup" | "drawing" | "revealed" | "interpreting" | "done";
@@ -131,6 +133,7 @@ export default function Home() {
   const [draw, setDraw] = useState<DrawResponse | null>(null);
   const [pickedCount, setPickedCount] = useState(0);
   const [result, setResult] = useState<InterpretResponse | null>(null);
+  const [readingId, setReadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [drawKey, setDrawKey] = useState(0);
   const [heroFlipped, setHeroFlipped] = useState(false);
@@ -160,9 +163,27 @@ export default function Home() {
         core_card: drawResponse.core_card,
         language,
       });
+      const archiveEntry = saveLocalReading({
+        question,
+        spreadKey,
+        spreadName: selectedSpread?.name ?? spreadKey,
+        cards: drawResponse.cards,
+        coreCard: drawResponse.core_card,
+        result: response,
+        language,
+      });
+      setReadingId(archiveEntry.id);
       setResult(response);
       setPhase("done");
+      void trackUsageEvent({
+        event: "reading_completed",
+        spreadKey,
+        mode,
+        language,
+        readingId: archiveEntry.id,
+      }).catch(() => undefined);
     } catch {
+      void trackUsageEvent({ event: "reading_failed", spreadKey, mode, language }).catch(() => undefined);
       setError(copy.readingError);
       setPhase("revealed");
     }
@@ -177,6 +198,7 @@ export default function Home() {
       setPickedCount(0);
       setDrawKey((key) => key + 1);
       setPhase("drawing");
+      void trackUsageEvent({ event: "reading_started", spreadKey, mode: "draw", language }).catch(() => undefined);
     } catch {
       setError(copy.drawError);
     }
@@ -185,6 +207,7 @@ export default function Home() {
   async function handleRedraw() {
     if (!spreadKey) return;
     setError(null);
+    void trackUsageEvent({ event: "reading_started", spreadKey, mode: "photo", language }).catch(() => undefined);
     try {
       const response = await drawCards(spreadKey);
       setDraw(response);
@@ -216,6 +239,7 @@ export default function Home() {
     setPhase("setup");
     setDraw(null);
     setResult(null);
+    setReadingId(null);
     setPickedCount(0);
     setQuestion("");
     setError(null);
@@ -430,7 +454,14 @@ export default function Home() {
           </section>
         </div>
 
-        {phase === "done" && result && <ReadingResult result={result} />}
+        {phase === "done" && result && readingId && (
+          <ReadingResult
+            result={result}
+            readingId={readingId}
+            spreadKey={spreadKey}
+            mode={mode}
+          />
+        )}
       </main>
       <SiteFooter />
     </div>

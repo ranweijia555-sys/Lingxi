@@ -1390,6 +1390,83 @@ button:disabled {
   text-align: center;
 }
 
+.reading-feedback {
+  margin-top: 46px;
+  padding-top: 34px;
+  border-top: 1px solid var(--gold-soft);
+  text-align: center;
+}
+
+.reading-feedback h3 {
+  margin-top: 7px;
+  font-size: 27px;
+}
+
+.reading-feedback > p {
+  max-width: 560px;
+  margin: 9px auto 0;
+  color: var(--ink-soft);
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.feedback-rating {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.feedback-rating button {
+  min-width: 118px;
+  padding: 11px 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--ink-soft);
+  background: rgba(251, 246, 236, 0.58);
+  border: 1px solid var(--gold-soft);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.feedback-rating button:hover,
+.feedback-rating button.selected {
+  color: var(--ink);
+  background: rgba(232, 220, 194, 0.58);
+  border-color: var(--gold);
+}
+
+.feedback-detail {
+  max-width: 560px;
+  margin: 14px auto 0;
+  display: grid;
+  gap: 10px;
+}
+
+.feedback-detail textarea {
+  min-height: 90px;
+  padding: 14px 16px;
+  resize: vertical;
+  color: var(--ink);
+  background: rgba(251, 246, 236, 0.58);
+  border: 1px solid var(--gold-soft);
+  border-radius: 0;
+  font: 15px/1.65 var(--font-editorial), "Songti SC", serif;
+}
+
+.feedback-detail textarea:focus { outline: 1px solid var(--gold); }
+.feedback-submit { justify-self: end; min-width: 150px; }
+
+.feedback-status {
+  margin-top: 20px !important;
+  font-size: 14px !important;
+}
+
+.feedback-status.success { color: var(--sage); }
+
 /* History */
 .history-main { padding: 68px 0 96px; }
 
@@ -1423,6 +1500,29 @@ button:disabled {
 }
 
 .text-link span { color: var(--gold); }
+
+.history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px 24px;
+}
+
+.archive-clear {
+  padding: 0 0 4px;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--gold-soft);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.archive-clear:hover {
+  color: var(--ink);
+  transform: none;
+  border-bottom-color: var(--gold);
+}
 
 .archive-rule {
   margin-top: 58px;
@@ -1679,6 +1779,9 @@ button:disabled {
   .interp-block p,
   .archive-interpretation p { font-size: 15px; }
   .summary-block { padding: 28px 22px; }
+  .feedback-rating { flex-direction: column; }
+  .feedback-rating button { width: 100%; }
+  .feedback-submit { width: 100%; justify-self: stretch; }
 
   .history-main { padding: 52px 0 76px; }
   .history-heading h1 { font-size: 49px; }

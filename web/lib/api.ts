@@ -2,7 +2,6 @@ import type {
   DeckCard,
   DrawnCard,
   DrawResponse,
-  HistoryEntry,
   InterpretResponse,
   Spread,
   VisionRecognizeResponse,
@@ -73,8 +72,4 @@ export function resolveVisionCards(cards: DrawnCard[], spreadKey: string): Promi
     method: "POST",
     body: JSON.stringify({ cards, spread_key: spreadKey }),
   });
-}
-
-export function getHistory(limit = 20): Promise<HistoryEntry[]> {
-  return request<HistoryEntry[]>(`/api/history?limit=${limit}`);
 }

@@ -1,7 +1,7 @@
 """FastAPI 请求/响应模型"""
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 Orientation = Literal["upright", "reversed"]
 
@@ -54,7 +54,6 @@ class InterpretationItem(BaseModel):
 class InterpretResponse(BaseModel):
     interpretations: List[InterpretationItem]
     summary: str
-    reading_id: int
 
 
 class DeckCardOut(BaseModel):
@@ -81,12 +80,26 @@ class ResolveRequest(BaseModel):
     spread_key: str
 
 
-class HistoryEntry(BaseModel):
-    id: int
-    timestamp: str
-    question: str
-    spread: str
-    cards: List[CardOut]
-    core_card: str
-    single_interpretations: List[InterpretationItem]
-    summary: str
+class UsageEventRequest(BaseModel):
+    anonymous_id: str = Field(min_length=16, max_length=128)
+    session_id: str = Field(min_length=16, max_length=128)
+    event: Literal["reading_started", "reading_completed", "reading_failed"]
+    spread_key: Optional[str] = Field(default=None, max_length=64)
+    mode: Optional[Literal["draw", "photo"]] = None
+    language: Literal["zh", "en"] = "zh"
+    client_reading_id: Optional[str] = Field(default=None, min_length=16, max_length=128)
+
+
+class FeedbackRequest(BaseModel):
+    anonymous_id: str = Field(min_length=16, max_length=128)
+    session_id: str = Field(min_length=16, max_length=128)
+    rating: Literal["helpful", "neutral", "not_helpful"]
+    comment: Optional[str] = Field(default=None, max_length=500)
+    spread_key: str = Field(min_length=1, max_length=64)
+    mode: Literal["draw", "photo"]
+    language: Literal["zh", "en"] = "zh"
+    client_reading_id: str = Field(min_length=16, max_length=128)
+
+
+class AcceptedResponse(BaseModel):
+    accepted: bool

@@ -70,6 +70,9 @@ export function localizedSpread<T extends { key: string; name: string; positions
 }
 
 const SPREAD_NAMES: Record<string, { zh: string; en: string }> = {
+  single: { zh: "单张指引", en: "Single Card Guidance" },
+  three_no_spread: { zh: "三张无牌阵", en: "Three Card Open Reading" },
+  three_timeline: { zh: "三张时间线", en: "Past · Present · Future" },
   "单张指引": { zh: "单张指引", en: "Single Card Guidance" },
   "三张无牌阵": { zh: "三张无牌阵", en: "Three Card Open Reading" },
   "三张时间线": { zh: "三张时间线", en: "Past · Present · Future" },

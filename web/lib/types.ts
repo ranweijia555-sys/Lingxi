@@ -36,7 +36,6 @@ export interface InterpretationItem {
 export interface InterpretResponse {
   interpretations: InterpretationItem[];
   summary: string;
-  reading_id: number;
 }
 
 export interface DeckCard {
@@ -59,10 +58,12 @@ export interface VisionRecognizeResponse {
 }
 
 export interface HistoryEntry {
-  id: number;
+  id: string;
   timestamp: string;
   question: string;
   spread: string;
+  spread_key?: string;
+  language?: "zh" | "en";
   cards: DrawnCard[];
   core_card: string;
   single_interpretations: InterpretationItem[];

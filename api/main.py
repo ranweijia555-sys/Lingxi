@@ -8,22 +8,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from tarot.analyzer import build_analysis_report
 from tarot.data_loader import load_full_deck, load_spreads
 from tarot.drawer import draw_cards, find_core_card
-from tarot.history import load_history, save_reading
 from tarot.interpreter import interpret_single_card, synthesize_reading
 from tarot.vision import recognize_cards
 
+from api.telemetry import TelemetryUnavailable, anonymous_hash, insert_row
 from api.schemas import (
+    AcceptedResponse,
     CardDisplay,
     CardOut,
     DeckCardOut,
     DrawRequest,
     DrawResponse,
-    HistoryEntry,
+    FeedbackRequest,
     InterpretationItem,
     InterpretRequest,
     InterpretResponse,
     ResolveRequest,
     SpreadOut,
+    UsageEventRequest,
     VisionCardOut,
     VisionRecognizeResponse,
 )
@@ -54,12 +56,6 @@ POSITION_EN = {
     "过去": "Past",
     "现在": "Present",
     "未来": "Future",
-}
-
-SPREAD_NAME_EN = {
-    "single": "Single Card Guidance",
-    "three_no_spread": "Three Card Open Reading",
-    "three_timeline": "Past · Present · Future",
 }
 
 
@@ -148,16 +144,7 @@ def interpret(req: InterpretRequest):
         language=req.language,
     )
 
-    reading_id = save_reading(
-        question=req.question,
-        spread_name=SPREAD_NAME_EN.get(req.spread_key, spread["name"]) if req.language == "en" else spread["name"],
-        cards=cards,
-        core_card=core_card,
-        single_interpretations=[item.model_dump() for item in interpretations],
-        summary=summary,
-    )
-
-    return InterpretResponse(interpretations=interpretations, summary=summary, reading_id=reading_id)
+    return InterpretResponse(interpretations=interpretations, summary=summary)
 
 
 @app.get("/api/deck", response_model=list[DeckCardOut])
@@ -194,8 +181,42 @@ def vision_resolve(req: ResolveRequest):
     return _build_draw_response(cards, spread)
 
 
-@app.get("/api/history", response_model=list[HistoryEntry])
-def get_history(limit: int = 20):
-    history = load_history()
-    recent = history[-limit:][::-1]
-    return [HistoryEntry(**entry) for entry in recent]
+@app.post("/api/analytics/event", response_model=AcceptedResponse)
+def record_usage_event(req: UsageEventRequest):
+    try:
+        insert_row(
+            "usage_events",
+            {
+                "anonymous_id_hash": anonymous_hash(req.anonymous_id),
+                "session_id_hash": anonymous_hash(req.session_id),
+                "event_name": req.event,
+                "spread_key": req.spread_key,
+                "reading_mode": req.mode,
+                "language": req.language,
+                "reading_id_hash": anonymous_hash(req.client_reading_id) if req.client_reading_id else None,
+            },
+        )
+    except TelemetryUnavailable as exc:
+        raise HTTPException(status_code=503, detail="统计服务暂时不可用") from exc
+    return AcceptedResponse(accepted=True)
+
+
+@app.post("/api/analytics/feedback", response_model=AcceptedResponse)
+def record_feedback(req: FeedbackRequest):
+    try:
+        insert_row(
+            "reading_feedback",
+            {
+                "anonymous_id_hash": anonymous_hash(req.anonymous_id),
+                "session_id_hash": anonymous_hash(req.session_id),
+                "reading_id_hash": anonymous_hash(req.client_reading_id),
+                "rating": req.rating,
+                "comment": req.comment,
+                "spread_key": req.spread_key,
+                "reading_mode": req.mode,
+                "language": req.language,
+            },
+        )
+    except TelemetryUnavailable as exc:
+        raise HTTPException(status_code=503, detail="反馈服务暂时不可用") from exc
+    return AcceptedResponse(accepted=True)
