@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useLanguage } from "@/lib/language";
 
-export default function SiteHeader({ active = "reading" }: { active?: "reading" | "history" }) {
+export default function SiteHeader({ active = "reading" }: { active?: "reading" | "practice" | "history" }) {
   const { language, setLanguage } = useLanguage();
 
   return (
@@ -21,6 +21,9 @@ export default function SiteHeader({ active = "reading" }: { active?: "reading" 
       <div className="nav-links">
         <Link className={active === "reading" ? "active" : ""} href="/">
           {language === "zh" ? "占卜" : "Reading"}
+        </Link>
+        <Link className={active === "practice" ? "active" : ""} href="/practice">
+          {language === "zh" ? "牌桌手记" : "Table Notes"}
         </Link>
         <Link className={active === "history" ? "active" : ""} href="/history">
           {language === "zh" ? "档案" : "Archive"}

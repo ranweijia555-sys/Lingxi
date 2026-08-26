@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import CardFan from "@/components/CardFan";
@@ -41,6 +42,7 @@ const TAROT_SYSTEM_COPY = {
     eyebrow: "TAROT SYSTEM",
     summary: "78 张牌 · 牌阵位置 · 四元素 · 灵数与占星",
     expand: "展开塔罗体系",
+    enter: "走进我的牌桌",
     steps: [
       { number: "01", title: "牌位与核心牌", detail: "先看每张牌所在的位置与正、逆位；多牌阅读再找出贯穿全局的核心牌。" },
       { number: "02", title: "四元素", detail: "权杖属火，关注行动；圣杯属水，关注感受；宝剑属风，关注思想；星币属土，关注现实。" },
@@ -52,6 +54,7 @@ const TAROT_SYSTEM_COPY = {
     eyebrow: "TAROT SYSTEM",
     summary: "78 cards · spread positions · four elements · numerology and astrology",
     expand: "Explore the tarot system",
+    enter: "Enter my reading table",
     steps: [
       { number: "01", title: "Position & core", detail: "Each card is read through its spread position and orientation; a core card anchors a multi-card reading." },
       { number: "02", title: "Four elements", detail: "Wands/Fire speak to action, Cups/Water to feeling, Swords/Air to thought, and Pentacles/Earth to lived reality." },
@@ -301,6 +304,9 @@ export default function Home() {
                       ))}
                     </ol>
                     <p className="method-boundary"><span aria-hidden="true">✦</span>{systemCopy.boundary}</p>
+                    <Link className="method-page-link" href="/practice">
+                      {systemCopy.enter}<span aria-hidden="true">↗</span>
+                    </Link>
                   </div>
                 </details>
               </div>

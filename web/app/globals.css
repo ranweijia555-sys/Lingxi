@@ -249,7 +249,8 @@ a {
 
 .landing-main,
 .reading-main,
-.history-main {
+.history-main,
+.practice-main {
   width: min(1180px, calc(100% - 72px));
   margin: 0 auto;
 }
@@ -492,6 +493,28 @@ a {
 }
 
 .method-boundary span { color: var(--gold); }
+
+.method-page-link {
+  width: max-content;
+  margin-top: 12px;
+  padding-bottom: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--gold);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-decoration: none;
+}
+
+.method-page-link span {
+  color: var(--gold);
+  transition: transform 180ms ease;
+}
+
+.method-page-link:hover span { transform: translate(2px, -2px); }
 
 .hero-card-scene {
   width: min(100%, 350px);
@@ -1467,6 +1490,283 @@ button:disabled {
 
 .feedback-status.success { color: var(--sage); }
 
+/* Reader's practice */
+.practice-main {
+  padding-bottom: 104px;
+}
+
+.practice-hero {
+  min-height: calc(100vh - 162px);
+  padding: clamp(70px, 10vh, 118px) 5%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.72fr);
+  gap: clamp(64px, 9vw, 128px);
+  align-items: center;
+  border-left: 1px solid rgba(167, 133, 77, 0.16);
+  border-right: 1px solid rgba(167, 133, 77, 0.16);
+}
+
+.practice-hero-copy h1,
+.practice-section-heading h2,
+.practice-relation-copy h2,
+.human-framework h2 {
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-weight: 500;
+}
+
+.practice-hero-copy h1 {
+  margin-top: 13px;
+  font-size: clamp(54px, 6.4vw, 82px);
+  line-height: 0.98;
+  letter-spacing: 0.015em;
+}
+
+.practice-intro {
+  max-width: 620px;
+  color: var(--ink-soft);
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-size: 19px;
+  line-height: 1.9;
+}
+
+.reader-note {
+  min-height: 390px;
+  padding: 58px 46px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background: rgba(251, 246, 236, 0.56);
+  border: 1px solid var(--gold-soft);
+  box-shadow: 0 22px 52px rgba(68, 53, 32, 0.07);
+}
+
+.reader-note::before,
+.reader-note::after {
+  content: "";
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-color: var(--gold);
+  opacity: 0.48;
+}
+
+.reader-note::before {
+  top: 14px;
+  left: 14px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.reader-note::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.reader-note > span {
+  color: var(--gold);
+  font-size: 29px;
+}
+
+.reader-note p {
+  margin-top: 24px;
+  color: var(--ink-soft);
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.95;
+}
+
+.reader-note footer {
+  margin-top: 27px;
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+}
+
+.practice-foundation {
+  padding: 96px 7%;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(50px, 10vw, 150px);
+  align-items: end;
+  border-top: 1px solid var(--gold-soft);
+  border-bottom: 1px solid var(--gold-soft);
+}
+
+.practice-section-heading h2,
+.practice-relation-copy h2,
+.human-framework h2 {
+  margin-top: 12px;
+  font-size: clamp(34px, 4vw, 50px);
+  line-height: 1.14;
+}
+
+.practice-foundation > p,
+.practice-relation-copy > p,
+.human-framework > p {
+  color: var(--ink-soft);
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-size: 17px;
+  line-height: 1.95;
+}
+
+.practice-sequence {
+  padding: 104px 7%;
+}
+
+.practice-sequence > .practice-section-heading {
+  max-width: 650px;
+}
+
+.practice-steps {
+  margin-top: 58px;
+  list-style: none;
+  border-top: 1px solid var(--gold-soft);
+}
+
+.practice-steps li {
+  min-height: 148px;
+  padding: 30px 1%;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  border-bottom: 1px solid var(--gold-soft);
+}
+
+.practice-steps li > span {
+  padding-top: 4px;
+  color: var(--gold);
+  font-family: var(--font-editorial), serif;
+  font-size: 15px;
+}
+
+.practice-steps h3,
+.reading-lenses h3 {
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-weight: 500;
+}
+
+.practice-steps h3 {
+  font-size: 25px;
+  letter-spacing: 0.035em;
+}
+
+.practice-steps p {
+  max-width: 720px;
+  margin-top: 9px;
+  color: var(--ink-soft);
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.practice-relations {
+  padding: 98px 7%;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(56px, 9vw, 126px);
+  background: rgba(251, 246, 236, 0.38);
+  border-top: 1px solid var(--gold-soft);
+  border-bottom: 1px solid var(--gold-soft);
+}
+
+.practice-relation-copy > p { margin-top: 24px; }
+
+.reading-lenses {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.reading-lenses article {
+  min-height: 210px;
+  padding: 28px 30px;
+  border: 1px solid var(--gold-soft);
+}
+
+.reading-lenses article:nth-child(even) { border-left: 0; }
+.reading-lenses article:nth-child(n + 3) { border-top: 0; }
+
+.reading-lenses article > span {
+  color: var(--gold);
+  font-family: var(--font-editorial), serif;
+  font-size: 22px;
+}
+
+.reading-lenses h3 {
+  margin-top: 25px;
+  font-size: 21px;
+}
+
+.reading-lenses p {
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.human-framework {
+  max-width: 910px;
+  margin: 108px auto 0;
+  padding: 72px 84px;
+  position: relative;
+  text-align: center;
+  background: rgba(232, 220, 194, 0.44);
+  border: 1px solid var(--gold-soft);
+}
+
+.framework-mark {
+  position: absolute;
+  top: 21px;
+  right: 23px;
+  color: var(--gold);
+}
+
+.human-framework > p {
+  max-width: 700px;
+  margin: 27px auto 0;
+}
+
+.practice-closing {
+  padding: 98px 24px 0;
+  text-align: center;
+}
+
+.practice-closing p {
+  color: var(--ink-soft);
+  font-family: var(--font-editorial), "Songti SC", serif;
+  font-size: 17px;
+}
+
+.practice-action {
+  min-width: 240px;
+  margin-top: 27px;
+  padding: 15px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--paper-strong);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-decoration: none;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.practice-action span { color: #d1ad65; }
+
+.practice-action:hover {
+  color: var(--ink);
+  background: transparent;
+  transform: translateY(-2px);
+}
+
 /* History */
 .history-main { padding: 68px 0 96px; }
 
@@ -1688,6 +1988,7 @@ button:disabled {
   .landing-main,
   .reading-main,
   .history-main,
+  .practice-main,
   .site-footer {
     width: min(100% - 36px, 720px);
   }
@@ -1790,6 +2091,28 @@ button:disabled {
   .history-item-question { font-size: 19px; }
   .history-item-body { padding: 0 3px 34px; }
   .archive-interpretation { grid-template-columns: 29px 1fr; gap: 5px; }
+
+  .practice-hero {
+    min-height: auto;
+    padding: 64px 0 72px;
+    grid-template-columns: 1fr;
+    gap: 46px;
+    border: 0;
+  }
+
+  .practice-hero-copy h1 { font-size: 55px; }
+  .practice-intro { font-size: 17px; }
+  .reader-note { min-height: 0; padding: 48px 34px; }
+  .practice-foundation,
+  .practice-relations { grid-template-columns: 1fr; gap: 32px; padding: 68px 8px; }
+  .practice-sequence { padding: 72px 8px; }
+  .practice-steps { margin-top: 42px; }
+  .practice-steps li { grid-template-columns: 44px 1fr; padding: 25px 0; }
+  .reading-lenses { grid-template-columns: 1fr; }
+  .reading-lenses article:nth-child(even) { border-left: 1px solid var(--gold-soft); }
+  .reading-lenses article:nth-child(n + 2) { border-top: 0; }
+  .human-framework { margin-top: 74px; padding: 58px 26px; }
+  .practice-closing { padding-top: 72px; }
 
   .site-footer {
     min-height: 74px;
