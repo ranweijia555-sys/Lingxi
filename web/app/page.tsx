@@ -34,28 +34,28 @@ const HERO_CARD_POOL = [
   "世界",
 ];
 
-const METHOD_COPY = {
+const TAROT_SYSTEM_COPY = {
   zh: {
-    eyebrow: "READING LOGIC",
-    summary: "78 张随机牌组 → 体系化牌义 → AI 仅负责整合表达",
-    expand: "展开逻辑",
+    eyebrow: "TAROT SYSTEM",
+    summary: "78 张牌 · 牌阵位置 · 四元素 · 灵数与占星",
+    expand: "展开塔罗体系",
     steps: [
-      { number: "01", title: "随机抽取", detail: "从完整 78 张牌中随机抽牌并决定正、逆位；AI 不参与抽牌。" },
-      { number: "02", title: "体系分析", detail: "结合牌阵位置、核心牌规则、传统牌义、元素、占星与灵数。" },
-      { number: "03", title: "语言整合", detail: "AI 将既定结构与你的问题连接，整理为清晰、可反思的表达。" },
+      { number: "01", title: "牌位与核心牌", detail: "先看每张牌所在的位置与正、逆位；多牌阅读再找出贯穿全局的核心牌。" },
+      { number: "02", title: "四元素", detail: "权杖属火，关注行动；圣杯属水，关注感受；宝剑属风，关注思想；星币属土，关注现实。" },
+      { number: "03", title: "灵数与占星", detail: "数字牌归元至 1–9 观察发展阶段，大阿卡纳再结合星体与星座对应理解能量主题。" },
     ],
-    boundary: "塔罗在这里是一种反思工具，不提供确定预言，也不替代你的判断或专业建议。",
+    boundary: "牌义不是孤立的固定答案；牌位、元素之间的呼应与冲突，才共同组成这次阅读的线索。",
   },
   en: {
-    eyebrow: "READING LOGIC",
-    summary: "78-card random draw → structured symbolism → AI shapes the language only",
-    expand: "View method",
+    eyebrow: "TAROT SYSTEM",
+    summary: "78 cards · spread positions · four elements · numerology and astrology",
+    expand: "Explore the tarot system",
     steps: [
-      { number: "01", title: "Random draw", detail: "Cards and orientations are selected from the full 78-card deck without AI involvement." },
-      { number: "02", title: "System reading", detail: "Positions, core-card rules, traditional meanings, elements, astrology, and numerology are combined." },
-      { number: "03", title: "Language synthesis", detail: "AI connects that fixed structure to your question and makes the reflection readable." },
+      { number: "01", title: "Position & core", detail: "Each card is read through its spread position and orientation; a core card anchors a multi-card reading." },
+      { number: "02", title: "Four elements", detail: "Wands/Fire speak to action, Cups/Water to feeling, Swords/Air to thought, and Pentacles/Earth to lived reality." },
+      { number: "03", title: "Number & sky", detail: "Numbers reduce to 1–9 to show stages of development, while Major Arcana correspondences add planetary and zodiac themes." },
     ],
-    boundary: "Tarot is used here as a reflective tool—not certainty, a prediction, or a substitute for your judgment or professional advice.",
+    boundary: "No card is a fixed answer in isolation; the relationships and tensions among positions and elements form the reading.",
   },
 };
 
@@ -122,7 +122,7 @@ const HOME_COPY = {
 export default function Home() {
   const { language } = useLanguage();
   const copy = HOME_COPY[language];
-  const methodCopy = METHOD_COPY[language];
+  const systemCopy = TAROT_SYSTEM_COPY[language];
   const [spreads, setSpreads] = useState<Spread[]>([]);
   const [spreadKey, setSpreadKey] = useState("");
   const [question, setQuestion] = useState("");
@@ -262,13 +262,13 @@ export default function Home() {
                 <p className="intro-lede">{copy.lede}</p>
                 <details className="method-note">
                   <summary>
-                    <span className="method-kicker">{methodCopy.eyebrow}</span>
-                    <strong>{methodCopy.summary}</strong>
-                    <span className="method-toggle" aria-label={methodCopy.expand}>+</span>
+                    <span className="method-kicker">{systemCopy.eyebrow}</span>
+                    <strong>{systemCopy.summary}</strong>
+                    <span className="method-toggle" aria-label={systemCopy.expand}>+</span>
                   </summary>
                   <div className="method-body">
                     <ol className="method-steps">
-                      {methodCopy.steps.map((step) => (
+                      {systemCopy.steps.map((step) => (
                         <li key={step.number}>
                           <span>{step.number}</span>
                           <strong>{step.title}</strong>
@@ -276,7 +276,7 @@ export default function Home() {
                         </li>
                       ))}
                     </ol>
-                    <p className="method-boundary"><span aria-hidden="true">✦</span>{methodCopy.boundary}</p>
+                    <p className="method-boundary"><span aria-hidden="true">✦</span>{systemCopy.boundary}</p>
                   </div>
                 </details>
               </div>
