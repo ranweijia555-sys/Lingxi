@@ -36,6 +36,8 @@ alter table public.reading_feedback enable row level security;
 -- The browser never talks to Supabase directly. Only the backend service-role key may access these tables.
 revoke all on table public.usage_events from anon, authenticated;
 revoke all on table public.reading_feedback from anon, authenticated;
+grant insert, select on table public.usage_events to service_role;
+grant insert, select on table public.reading_feedback to service_role;
 
 create or replace view public.beta_metrics_daily
 with (security_invoker = true)
@@ -74,3 +76,4 @@ full outer join feedback_totals f using (day)
 order by day desc;
 
 revoke all on table public.beta_metrics_daily from anon, authenticated;
+grant select on table public.beta_metrics_daily to service_role;
