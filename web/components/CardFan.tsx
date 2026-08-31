@@ -30,14 +30,20 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
   const lightRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rafRef = useRef<number | null>(null);
+  const pickedCueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchClickResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointerRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
   const hoverStateRef = useRef<Map<number, { lift: number; scale: number; bright: number }>>(new Map());
   const usedSetRef = useRef<Set<number>>(new Set());
+  const touchInteractionRef = useRef(false);
+  const candidateRef = useRef<number | null>(null);
 
   const [usedSet, setUsedSet] = useState<Set<number>>(new Set());
   const [reduceMotion] = useState(getInitialReduceMotion);
   const [layout] = useState(getInitialLayout);
   const [isHovering, setIsHovering] = useState(false);
+  const [candidateIndex, setCandidateIndex] = useState<number | null>(null);
+  const [lastPickedIndex, setLastPickedIndex] = useState<number | null>(null);
 
   const { count, deg } = layout;
 
@@ -134,6 +140,8 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
   useEffect(() => {
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      if (pickedCueTimerRef.current !== null) clearTimeout(pickedCueTimerRef.current);
+      if (touchClickResetTimerRef.current !== null) clearTimeout(touchClickResetTimerRef.current);
     };
   }, []);
 
@@ -145,9 +153,9 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
   }
 
   function resetHover() {
-    if (reduceMotion) return;
     pointerRef.current.active = false;
     setIsHovering(false);
+    if (reduceMotion) return;
     scheduleHoverFrame();
 
     const settle = () => {
@@ -166,9 +174,56 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
     requestAnimationFrame(settle);
   }
 
+  function nearestAvailableCard(clientX: number) {
+    let nearest: number | null = null;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
+    cardRefs.current.forEach((card, index) => {
+      if (!card || usedSetRef.current.has(index)) return;
+      const rect = card.getBoundingClientRect();
+      const distance = Math.abs(clientX - (rect.left + rect.width / 2));
+      if (distance < nearestDistance) {
+        nearest = index;
+        nearestDistance = distance;
+      }
+    });
+
+    return nearest;
+  }
+
+  function updateTouchCandidate(clientX: number, clientY: number) {
+    touchInteractionRef.current = true;
+    const nearest = nearestAvailableCard(clientX);
+    candidateRef.current = nearest;
+    setCandidateIndex(nearest);
+    pointerRef.current = { x: clientX, y: clientY, active: true };
+    setIsHovering(true);
+    if (!reduceMotion) scheduleHoverFrame();
+  }
+
+  function finishTouchSelection(clientX?: number) {
+    const nearest = clientX === undefined ? candidateRef.current : nearestAvailableCard(clientX);
+    if (nearest !== null) {
+      pick(nearest);
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(12);
+    }
+    candidateRef.current = null;
+    setCandidateIndex(null);
+    resetHover();
+    if (touchClickResetTimerRef.current !== null) clearTimeout(touchClickResetTimerRef.current);
+    touchClickResetTimerRef.current = setTimeout(() => {
+      touchInteractionRef.current = false;
+    }, 520);
+  }
+
   function pick(i: number) {
-    if (usedSet.has(i) || usedSet.size >= totalPicks) return;
-    setUsedSet((prev) => new Set(prev).add(i));
+    if (usedSetRef.current.has(i) || usedSetRef.current.size >= totalPicks) return;
+    const next = new Set(usedSetRef.current).add(i);
+    usedSetRef.current = next;
+    setUsedSet(next);
+    setLastPickedIndex(i);
+    if (pickedCueTimerRef.current !== null) clearTimeout(pickedCueTimerRef.current);
+    pickedCueTimerRef.current = setTimeout(() => setLastPickedIndex(null), 620);
     onPick();
   }
 
@@ -178,18 +233,35 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
       ref={stageRef}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
       onMouseLeave={resetHover}
-      onTouchMove={(e) => {
-        const t = e.touches[0];
-        if (t) handleMove(t.clientX, t.clientY);
+      onTouchStart={(e) => {
+        const touch = e.touches[0];
+        if (touch) updateTouchCandidate(touch.clientX, touch.clientY);
       }}
-      onTouchEnd={resetHover}
+      onTouchMove={(e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        if (touch) updateTouchCandidate(touch.clientX, touch.clientY);
+      }}
+      onTouchEnd={(e) => finishTouchSelection(e.changedTouches[0]?.clientX)}
+      onTouchCancel={() => {
+        candidateRef.current = null;
+        setCandidateIndex(null);
+        resetHover();
+      }}
     >
       <div className="cursor-light" ref={lightRef} />
       <div className="fan">
         {Array.from({ length: count }).map((_, i) => {
           const { base } = baseTransform(i);
           const used = usedSet.has(i);
-          const cardClass = ["card", "cardback", !used && isHovering ? "hovered" : "", !used ? "fan-enter" : ""]
+          const cardClass = [
+            "card",
+            "cardback",
+            !used && isHovering ? "hovered" : "",
+            !used ? "fan-enter" : "",
+            candidateIndex === i ? "touch-candidate" : "",
+            lastPickedIndex === i ? "just-picked" : "",
+          ]
             .filter(Boolean)
             .join(" ");
 
@@ -209,7 +281,7 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
                       transform: "translateX(-50%) translateY(-160px) scale(1.1)",
                       opacity: 0,
                       pointerEvents: "none",
-                      transition: "transform 0.65s cubic-bezier(0.16,1,0.3,1), opacity 0.55s ease",
+                      transition: "transform 0.65s cubic-bezier(0.16,1,0.3,1) 0.1s, opacity 0.45s ease 0.16s",
                       zIndex: i,
                     }
                   : {
@@ -218,7 +290,9 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
                       animationDelay: `${i * 18}ms`,
                     }
               }
-              onClick={() => pick(i)}
+              onClick={() => {
+                if (!touchInteractionRef.current) pick(i);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
@@ -226,6 +300,9 @@ export default function CardFan({ totalPicks, onPick }: CardFanProps) {
                 }
               }}
             >
+              <span className="touch-choice-label" aria-hidden="true">
+                {language === "zh" ? "松开选中" : "Release to choose"}
+              </span>
               <span className="sr-only">{language === "zh" ? "选择这张牌" : "Select this card"}</span>
             </div>
           );

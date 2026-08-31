@@ -36,10 +36,18 @@ support. Avoid restrictive body, diet, calorie, or exercise targets. Be warm and
 pet names, fear-based language, or exaggerated claims.
 """
 
+VAGUE_LANGUAGE_BAN = """
+禁止使用以下空转词汇及同类表达：
+能量流动、元素分布、内在笃定、云开见月、温柔过渡、能量在平衡、像一条河流、
+牌灵、聚合能量、水元素为主、火风水、温柔地过渡、重新相信、跟随直觉中的笃定。
+"""
+
 """塔罗 AI 解读模块（多步链式版：单卡深读 + 整体汇总）"""
+from tarot.analyzer import build_analysis_report
 from tarot.llm_client import get_text_client, TEXT_MODEL
 
 client = get_text_client()
+
 
 def _call_llm(system_prompt, user_prompt):
     """统一的 LLM 调用接口"""
@@ -48,8 +56,8 @@ def _call_llm(system_prompt, user_prompt):
             model=TEXT_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ]
+                {"role": "user", "content": user_prompt},
+            ],
         )
         return response.choices[0].message.content
     except Exception as e:
@@ -59,7 +67,7 @@ def _call_llm(system_prompt, user_prompt):
 def interpret_single_card(question, card_info, position, card_detail, is_core, language="zh"):
     """
     解读单张牌
-    
+
     card_info: {"card": "...", "orientation": "..."}
     position: "牌一" / "过去" / "今日指引" 等
     card_detail: 包含 element, planet, number, upright, reversed 等
@@ -68,9 +76,9 @@ def interpret_single_card(question, card_info, position, card_detail, is_core, l
     orientation_zh = "正位" if card_info["orientation"] == "upright" else "逆位"
     orientation_en = "upright" if card_info["orientation"] == "upright" else "reversed"
     meaning = card_detail["upright"] if card_info["orientation"] == "upright" else card_detail["reversed"]
-    
+
     role_label = "（核心牌 ⭐）" if is_core else ""
-    
+
     if language == "en":
         user_prompt = f"""The user's question: {question}
 
@@ -99,32 +107,41 @@ fixed prediction. Return one natural paragraph in English without a heading."""
 - 元素：{card_detail.get('element', '?')}
 - 占星对应：{card_detail.get('planet', '?')}
 - 编号：{card_detail.get('number', '?')}
-- 传统含义：{meaning}
+- 权威依据 —— 必须严格遵循：{meaning}
 
-请给出这张牌的解读，要求：
-1. 控制在 100-150 字
-2. 自然融入元素和占星信息（不要硬塞）
-3. 紧扣用户问题，不要泛泛而谈
-4. 语气亲和有洞察，不要称呼亲爱的
-5. 不需要标题或编号，直接一段话
-6. 用中文"""
-    
-    # 第一个（interpret_single_card 里）
-    system_prompt = "你是一位温柔且专业的塔罗师，擅长用元素和占星视角解读单张牌。\n\n" + RESPONSIBLE_AI_GUIDELINES
+请给出这张牌在此问题下的解读，要求：
+1. 控制在 100-150 字，一段话，无标题
+2. 必须包含三项，自然融入叙述中：
+   - 具体场景：这张牌在用户问题中对应什么现实情境
+   - 可辨认信号：用户可观察到的具体现象（如「某段对话反复出现」「某项计划迟迟未启动」）
+   - 可执行动作：一个今天或本周内可完成的小步骤
+3. 元素/占星信息只在能解释上述三项时使用，禁止硬塞
+4. 紧扣用户问题，禁止泛泛而谈
+5. 用中文
+
+{VAGUE_LANGUAGE_BAN}"""
+
+    system_prompt = (
+        "你是一位落地型塔罗师，擅长把牌义翻译成具体情境与可执行建议。"
+        "准确应用体系，而不是产出优美文字。\n\n"
+        + RESPONSIBLE_AI_GUIDELINES
+    )
     return _call_llm(system_prompt, user_prompt)
 
 
-def synthesize_reading(question, cards_with_interpretations, analysis_report, language="zh"):
+def synthesize_reading(question, cards_with_interpretations, cards, core_card, language="zh"):
     """
     综合解读 — 在三张牌的单独解读基础上，给出整体能量与建议
-    
+
     cards_with_interpretations: [{"position": ..., "card": ..., "interpretation": ...}, ...]
     """
+    analysis_report = build_analysis_report(cards, core_card, question=question)
+
     cards_summary = "\n\n".join([
         f"【{item['position']}】{item['card']}\n{item['interpretation']}"
         for item in cards_with_interpretations
     ])
-    
+
     if language == "en":
         user_prompt = f"""The user's question: {question}
 
@@ -145,20 +162,30 @@ grounded, and non-deterministic. Return one flowing paragraph in English without
 
     user_prompt = f"""用户的问题：{question}
 
-你已经解读完了每张牌：
+各张牌的单独解读：
 {cards_summary}
 
-体系化分析参考：
+体系化分析（含元素张力、灵数轨迹、核心判断）：
 {analysis_report}
 
-现在请给一段【整体能量与核心指引】，要求：
-1. 综合三张牌的能量流动（用元素分布和灵数变化说明）
-2. 点明这次占卜的核心信息（一句话能讲清）
-3. 给一个具体的、可执行的核心建议
-4. 控制在 200 字以内
-5. 语气温柔但有力量
-6. 直接输出一段流畅文字，不要再分段或加小标题
-7. 用中文"""
-    
-    system_prompt = "你是一位精通元素学与灵数学的资深塔罗师，擅长把多张牌的能量整合为有力的整体洞察。"
+请先内部完成推理（不要输出推理过程），再输出综合指引。
+
+输出必须包含以下四项，自然融入 200 字以内的一段中文，不要加小标题或编号：
+1. 叙事顺序：按牌阵位置说明事情如何展开（从第一张到最后一张各推进一步）
+2. 核心判断：一句话讲清这次占卜最关键的结论（直接引用体系化核心判断中的逻辑）
+3. 具体动作：一个本周内可执行、可验证的步骤
+4. 可辨认的信号：一句「如果接下来你注意到 X，说明这条线在兑现」格式的观察点
+
+要求：
+- 禁止描述「能量流动」「元素分布」等抽象过程，改用因果链和具体事件语言
+- 语气清晰、有边界，不要称呼「亲爱的」
+- 用中文
+
+{VAGUE_LANGUAGE_BAN}"""
+
+    system_prompt = (
+        "你是一位落地型塔罗师，擅长把体系化分析翻译成具体判断与行动建议。"
+        "准确应用体系，而不是产出优美文字。\n\n"
+        + RESPONSIBLE_AI_GUIDELINES
+    )
     return _call_llm(system_prompt, user_prompt)

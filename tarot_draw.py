@@ -98,7 +98,7 @@ def do_reading():
     print("=" * 50)
     print("✨ 整体能量与核心指引")
     print()
-    summary = synthesize_reading(question, cards_with_interpretations, analysis_report)
+    summary = synthesize_reading(question, cards_with_interpretations, cards, core_card)
     print(summary)
     print()
     

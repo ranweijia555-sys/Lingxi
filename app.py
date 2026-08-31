@@ -2,7 +2,6 @@
 import time
 import streamlit as st
 from tarot.drawer import draw_cards, find_core_card
-from tarot.analyzer import build_analysis_report
 from tarot.interpreter import interpret_single_card, synthesize_reading
 from tarot.data_loader import load_spreads, load_full_deck
 from tarot.history import save_reading
@@ -250,9 +249,8 @@ if st.session_state.reading_done and st.session_state.cards:
         cards_with_interpretations.append({"position": position, "card": card_info["card"], "interpretation": interpretation})
     
     st.markdown("---")
-    analysis_report = build_analysis_report(cards, core_card)
     with st.spinner("🪄 综合所有牌的能量..."):
-        summary = synthesize_reading(question, cards_with_interpretations, analysis_report)
+        summary = synthesize_reading(question, cards_with_interpretations, cards, core_card)
     st.markdown(f'<div class="summary-block">{summary}</div>', unsafe_allow_html=True)
     
     reading_id = save_reading(

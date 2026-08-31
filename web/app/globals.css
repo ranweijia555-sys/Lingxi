@@ -1223,6 +1223,7 @@ button:disabled {
 
 .count { color: var(--ink-soft); }
 .count b { color: var(--gold); font-weight: 600; }
+.mobile-pick-hint { display: none; }
 
 .stage {
   position: relative;
@@ -1267,6 +1268,22 @@ button:disabled {
 
 .card.hovered { transition: none; }
 .card.fan-enter { animation: fan-deal 600ms var(--ease) both; }
+
+.card.touch-candidate {
+  outline: 2px solid #d1ad65;
+  outline-offset: 4px;
+  filter: brightness(1.2) !important;
+  box-shadow: 0 0 0 1px rgba(251, 246, 236, 0.9), 0 18px 36px rgba(167, 133, 77, 0.36) !important;
+}
+
+.card.just-picked {
+  outline: 3px solid #d1ad65;
+  outline-offset: 5px;
+  filter: brightness(1.28) !important;
+  box-shadow: 0 0 0 2px rgba(251, 246, 236, 0.95), 0 0 34px rgba(209, 173, 101, 0.62) !important;
+}
+
+.touch-choice-label { display: none; }
 
 .card:focus-visible {
   outline: 2px solid var(--gold);
@@ -1979,9 +1996,100 @@ button:disabled {
   to { opacity: 1; filter: none; }
 }
 
+@keyframes mobile-slot-confirm {
+  0% { transform: translateY(9px) scale(0.96); filter: brightness(1.28); }
+  45% { box-shadow: 0 0 0 3px rgba(209, 173, 101, 0.42), 0 0 28px rgba(209, 173, 101, 0.34); }
+  100% { transform: translateY(0) scale(1); filter: none; box-shadow: none; }
+}
+
 .animate-in { animation: fade-rise 700ms var(--ease) both; }
 .animate-in-delay-1 { animation-delay: 70ms; }
 .animate-in-delay-2 { animation-delay: 140ms; }
+
+/* Keep the complete card-picking task visible on a typical laptop screen. */
+@media (min-width: 641px) {
+  .phase-drawing {
+    --card-w: clamp(88px, 8vw, 106px);
+  }
+
+  .phase-drawing .reading-main {
+    padding: 18px 0 46px;
+  }
+
+  .phase-drawing .reading-heading {
+    margin-bottom: 17px;
+  }
+
+  .phase-drawing .reading-heading h1 {
+    margin-top: 6px;
+    font-size: clamp(31px, 3vw, 42px);
+    line-height: 1.04;
+  }
+
+  .phase-drawing .reading-heading > p {
+    margin-top: 7px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .phase-drawing .reading-context {
+    padding: 11px 3px;
+    gap: 34px;
+  }
+
+  .phase-drawing .reading-context > div + div {
+    padding-left: 28px;
+  }
+
+  .phase-drawing .reading-context span {
+    margin-bottom: 3px;
+    font-size: 7px;
+  }
+
+  .phase-drawing .reading-context p { font-size: 14px; }
+  .phase-drawing .reading-context small { margin-top: 2px; font-size: 7px; }
+
+  .phase-drawing .draw-canvas {
+    padding: 14px 18px 24px;
+  }
+
+  .phase-drawing .tray {
+    min-height: calc(var(--card-h) + 35px);
+    gap: clamp(16px, 3.2vw, 34px);
+  }
+
+  .phase-drawing .slot { gap: 7px; }
+  .phase-drawing .slot-caption { min-height: 27px; }
+  .phase-drawing .slot-label { font-size: 11px; }
+
+  .phase-drawing .draw-instruction {
+    margin-top: 8px;
+    padding-top: 7px;
+  }
+
+  .phase-drawing .stage {
+    height: 166px;
+    margin: 4px 0 17px;
+  }
+
+  .phase-drawing .fan { bottom: 22px; }
+
+  .phase-drawing .card {
+    width: 72px;
+    height: 102px;
+    transform-origin: 50% 148%;
+  }
+
+  .phase-drawing .controls {
+    min-height: 42px;
+  }
+
+  .phase-drawing .controls button {
+    min-height: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+}
 
 @media (max-width: 820px) {
   .site-nav,
@@ -2064,6 +2172,37 @@ button:disabled {
   .draw-canvas {
     margin: 0 -18px;
     padding: 32px 9px 38px;
+  }
+
+  .phase-drawing .stage {
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
+
+  .phase-drawing .slot.filled .slot-frame {
+    animation: mobile-slot-confirm 700ms var(--ease) both;
+  }
+
+  .desktop-pick-hint { display: none; }
+  .mobile-pick-hint {
+    display: inline;
+    color: var(--gold);
+    text-align: right;
+  }
+
+  .card.touch-candidate .touch-choice-label {
+    position: absolute;
+    left: 50%;
+    top: -27px;
+    width: max-content;
+    padding: 4px 7px;
+    display: block;
+    color: var(--paper-strong);
+    background: var(--ink);
+    border: 1px solid #d1ad65;
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    transform: translateX(-50%);
   }
 
   .tray { gap: 11px; }

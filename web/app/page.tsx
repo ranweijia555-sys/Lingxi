@@ -66,13 +66,13 @@ const TAROT_SYSTEM_COPY = {
 
 const PHASE_COPY: Record<Language, Record<Exclude<Phase, "setup">, { eyebrow: string; title: string; note: string }>> = {
   zh: {
-    drawing: { eyebrow: "THE DRAW", title: "让目光掠过牌阵", note: "停在最先让你产生感觉的位置，然后轻触它。" },
+    drawing: { eyebrow: "THE DRAW", title: "让目光掠过牌阵", note: "缓慢掠过牌背，停在最先让你产生感觉的位置。" },
     revealed: { eyebrow: "THE REVEAL", title: "你的牌已经揭示", note: "先留意每张牌带来的第一印象。" },
     interpreting: { eyebrow: "THE READING", title: "牌意正在汇聚", note: "正在结合牌位、正逆位与核心牌整理这次阅读。" },
     done: { eyebrow: "THE READING", title: "这就是此刻的牌面", note: "保留与你有关的部分，也允许答案慢慢显现。" },
   },
   en: {
-    drawing: { eyebrow: "THE DRAW", title: "Let your attention move across the deck", note: "Pause at the first card that creates a feeling, then select it." },
+    drawing: { eyebrow: "THE DRAW", title: "Let your attention move across the deck", note: "Move slowly across the deck and pause where you first feel a response." },
     revealed: { eyebrow: "THE REVEAL", title: "Your cards are revealed", note: "Notice the first impression each card gives you." },
     interpreting: { eyebrow: "THE READING", title: "The message is taking shape", note: "The positions, orientations, and core card are being read together." },
     done: { eyebrow: "THE READING", title: "A reflection for this moment", note: "Keep what feels relevant and allow the rest to unfold over time." },
@@ -90,6 +90,7 @@ const HOME_COPY = {
     spread: "当前牌阵",
     selected: "已选择",
     selectHint: "轻触任意牌背",
+    mobileSelectHint: "左右滑动牌阵 · 松手选中高亮牌",
     reshuffle: "重新洗牌",
     reveal: "揭示牌面",
     thinking: "正在整理牌面之间的线索…",
@@ -111,6 +112,7 @@ const HOME_COPY = {
     spread: "Selected spread",
     selected: "Selected",
     selectHint: "Select any card back",
+    mobileSelectHint: "Slide across the deck · release to choose the highlighted card",
     reshuffle: "Reshuffle",
     reveal: "Reveal cards",
     thinking: "Reading the connections between the cards…",
@@ -430,8 +432,9 @@ export default function Home() {
             {phase === "drawing" && (
               <>
                 <div className="draw-instruction">
-                  <span className="count">{copy.selected} <b>{pickedCount}</b> / {selectedSpread.card_count}</span>
-                  <span>{copy.selectHint}</span>
+                  <span className="count" aria-live="polite">{copy.selected} <b>{pickedCount}</b> / {selectedSpread.card_count}</span>
+                  <span className="desktop-pick-hint">{copy.selectHint}</span>
+                  <span className="mobile-pick-hint">{copy.mobileSelectHint}</span>
                 </div>
                 <CardFan key={drawKey} totalPicks={selectedSpread.card_count} onPick={() => setPickedCount((count) => count + 1)} />
                 <div className="controls">

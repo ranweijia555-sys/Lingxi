@@ -5,7 +5,6 @@ from typing import Optional
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from tarot.analyzer import build_analysis_report
 from tarot.data_loader import load_full_deck, load_spreads
 from tarot.drawer import draw_cards, find_core_card
 from tarot.interpreter import interpret_single_card, synthesize_reading
@@ -57,7 +56,6 @@ POSITION_EN = {
     "现在": "Present",
     "未来": "Future",
 }
-
 
 def _keyword(meaning: str) -> str:
     return meaning.split("、")[0]
@@ -136,11 +134,11 @@ def interpret(req: InterpretRequest):
             InterpretationItem(position=position, card=card_info["card"], interpretation=text)
         )
 
-    analysis_report = build_analysis_report(cards, core_card)
     summary = synthesize_reading(
         req.question,
         [item.model_dump() for item in interpretations],
-        analysis_report,
+        cards,
+        core_card,
         language=req.language,
     )
 
